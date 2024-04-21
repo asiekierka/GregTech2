@@ -42,6 +42,13 @@ repositories {
 	}
 }
 
+sourceSets {
+	main {
+		java.srcDirs = ["src/main/java"]
+		resources.srcDirs = ["src/main/resources", "docs"]
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraftVersion}"
 	forge "net.minecraftforge:forge:${forgeVersion}:universal@zip"
@@ -54,8 +61,8 @@ dependencies {
 	modCompileOnly name: "appeng", version: "rv9-i", ext: "zip"
 	modCompileOnly name: "CodeChickenCore", version: "0.8.1.6", ext: "jar"
 	modCompileOnly name: "NotEnoughItems", version: "1.4.7.4", ext: "jar"
-	modCompileOnly name: "IC2NuclearControl", version: "1.4.5", ext: "zip"
-	modCompileOnly name: "OmniTools", version: "2.2.3", ext: "zip"
+	modCompileOnly name: "IC2NuclearControl", version: "1.4.6", ext: "zip"
+	modCompileOnly name: "OmniTools", version: "3.0.4", ext: "zip"
 	modCompileOnly name: "Railcraft_1.4.7", version: "6.17.0.0", ext: "jar"
 	modCompileOnly name: "Thaumcraft", version: "3.0.3", ext: "zip"
 	modCompileOnly name: "ThermalExpansion", version: "2.2.2.2", ext: "zip"
