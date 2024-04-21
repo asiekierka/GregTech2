@@ -1,36 +1,38 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.tileentity.TileEntity
+ *  net.minecraft.util.MathHelper
+ */
 package gregtechmod.common.tileentities;
 
 import java.util.Iterator;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 
-public class GT_TileEntity_LightSource extends TileEntity {
-	
-	private int mTickTimer = 0;
-	
-    public GT_TileEntity_LightSource() {
-    	
-    }
+public class GT_TileEntity_LightSource
+extends TileEntity {
+    private int mTickTimer = 0;
 
-    @Override
-	public void updateEntity() {
-    	if (worldObj.isRemote) return;
-    	
-    	Iterator<EntityPlayer> tIterator = worldObj.playerEntities.iterator();
-    	
-    	boolean temp = true;
-    	
-    	if (++mTickTimer%20==0) {
-    		while (tIterator.hasNext() && temp) {
-    			EntityPlayer tPlayer = tIterator.next();
-    			if (MathHelper.floor_double(tPlayer.posX  )==xCoord&&
-    				MathHelper.floor_double(tPlayer.posY+1)==yCoord&&
-    				MathHelper.floor_double(tPlayer.posZ  )==zCoord)
-    				temp = false;
-    		}
-    		if (temp) worldObj.setBlockWithNotify(xCoord, yCoord, zCoord, 0);
-    	}
+    public void updateEntity() {
+        if (this.worldObj.isRemote) {
+            return;
+        }
+        Iterator tIterator = this.worldObj.playerEntities.iterator();
+        boolean temp = true;
+        if (++this.mTickTimer % 20 == 0) {
+            while (tIterator.hasNext() && temp) {
+                EntityPlayer tPlayer = (EntityPlayer)tIterator.next();
+                if (MathHelper.floor_double((double)tPlayer.posX) != this.xCoord || MathHelper.floor_double((double)(tPlayer.posY + 1.0)) != this.yCoord || MathHelper.floor_double((double)tPlayer.posZ) != this.zCoord) continue;
+                temp = false;
+            }
+            if (temp) {
+                this.worldObj.setBlockWithNotify(this.xCoord, this.yCoord, this.zCoord, 0);
+            }
+        }
     }
 }
+

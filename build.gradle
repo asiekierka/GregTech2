@@ -14,11 +14,11 @@ apply plugin: "agency.highlysuspect.voldeloom"
 java.toolchain.languageVersion = JavaLanguageVersion.of(11) //Last version able to set a --release as low as 6
 compileJava.options.release.set(6) //Forge doesn't understand classes compiled to versions of the class-file format newer than Java 6's
 
-String minecraftVersion = "1.4.6"
-String forgeVersion = "1.4.6-6.5.0.489"
+String minecraftVersion = "1.4.7"
+String forgeVersion = "1.4.7-6.6.2.534"
 
 archivesBaseName = "GregTech"
-version = "2.76d"
+version = "2.90i"
 
 repositories {
 	ivy {
@@ -51,11 +51,13 @@ dependencies {
 //	modCompileOnly name: "forestry", version: "A-2.0.0.11", ext: "jar"
 	modImplementation name: "industrialcraft-2", version: "1.115.231-lf", ext: "jar"
 
+	modCompileOnly name: "appeng", version: "rv9-i", ext: "zip"
 	modCompileOnly name: "CodeChickenCore", version: "0.8.1.6", ext: "jar"
 	modCompileOnly name: "NotEnoughItems", version: "1.4.7.4", ext: "jar"
 	modCompileOnly name: "IC2NuclearControl", version: "1.4.5", ext: "zip"
 	modCompileOnly name: "OmniTools", version: "2.2.3", ext: "zip"
 	modCompileOnly name: "Railcraft_1.4.7", version: "6.17.0.0", ext: "jar"
+	modCompileOnly name: "Thaumcraft", version: "3.0.3", ext: "zip"
 	modCompileOnly name: "ThermalExpansion", version: "2.2.2.2", ext: "zip"
 }
 

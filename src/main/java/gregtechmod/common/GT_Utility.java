@@ -1,17 +1,40 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  ic2.api.ElectricItem
+ *  net.minecraft.entity.Entity
+ *  net.minecraft.entity.EntityLiving
+ *  net.minecraft.entity.item.EntityItem
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.inventory.IInventory
+ *  net.minecraft.item.Item
+ *  net.minecraft.item.ItemStack
+ *  net.minecraft.potion.Potion
+ *  net.minecraft.tileentity.TileEntityChest
+ *  net.minecraft.util.AxisAlignedBB
+ *  net.minecraft.world.World
+ *  net.minecraft.world.chunk.Chunk
+ *  net.minecraftforge.common.ForgeDirection
+ *  net.minecraftforge.common.ISidedInventory
+ *  net.minecraftforge.liquids.LiquidContainerData
+ *  net.minecraftforge.liquids.LiquidContainerRegistry
+ */
 package gregtechmod.common;
 
-import gregtechmod.GT_Mod;
+import gregtechmod.common.GT_Log;
+import gregtechmod.common.GT_ModHandler;
+import gregtechmod.common.GT_OreDictUnificator;
 import gregtechmod.common.items.GT_EnergyArmor_Item;
 import gregtechmod.common.items.GT_MetaItem_SmallDust;
 import ic2.api.ElectricItem;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,504 +52,567 @@ import net.minecraftforge.liquids.LiquidContainerData;
 import net.minecraftforge.liquids.LiquidContainerRegistry;
 
 public class GT_Utility {
-	
-	public static void applyUsagesForMaterials(ItemStack aMat, ItemStack aOutput) {
-		if (aMat == null || aOutput == null) return;
-		aMat = aMat.copy();
-		aOutput = aOutput.copy();
-		ItemStack tMt2 = new ItemStack(Item.stick, 1), tStack;
-		ArrayList<ItemStack> tList;
-		if (aOutput.stackSize < 1) aOutput.stackSize = 1;
-		boolean bSawdust = aOutput.isItemEqual(GT_MetaItem_SmallDust.instance.getStack(15, 1));
-		
-		if (!aMat.isItemEqual(new ItemStack(Item.ingotIron, 1))) {
-			if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[] {aMat, null, aMat, null, aMat, null, null, null, null})) != null)
-				if (tStack.isItemEqual(new ItemStack(Item.bucketEmpty, 1)))
-					GT_ModHandler.removeRecipe(new ItemStack[] {aMat, null, aMat, null, aMat, null, null, null, null});
-			if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[] {null, null, null, aMat, null, aMat, null, aMat, null})) != null)
-				if (tStack.isItemEqual(new ItemStack(Item.bucketEmpty, 1)))
-					GT_ModHandler.removeRecipe(new ItemStack[] {null, null, null, aMat, null, aMat, null, aMat, null});
-			if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[] {aMat, null, aMat, aMat, aMat, aMat, null, null, null})) != null)
-				if (tStack.isItemEqual(new ItemStack(Item.minecartEmpty, 1)))
-					GT_ModHandler.removeRecipe(new ItemStack[] {aMat, null, aMat, aMat, aMat, aMat, null, null, null});
-			if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[] {null, null, null, aMat, null, aMat, aMat, aMat, aMat})) != null)
-				if (tStack.isItemEqual(new ItemStack(Item.minecartEmpty, 1)))
-					GT_ModHandler.removeRecipe(new ItemStack[] {null, null, null, aMat, null, aMat, aMat, aMat, aMat});
-		}
-		
-		int aOutItem = aOutput.itemID, aOutDamage = aOutput.getItemDamage(), aOutAmount = aOutput.stackSize;
-    	
-		if (GT_Mod.instance.mToolArmorMaceration) {
-			if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, aMat, aMat, aMat, null, aMat, null, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 5*aOutAmount+(bSawdust?0:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, null, aMat, aMat, aMat, aMat, aMat, aMat, aMat}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 8*aOutAmount+(bSawdust?0:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, aMat, aMat, aMat, null, aMat, aMat, null, aMat}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 7*aOutAmount+(bSawdust?0:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, null, null, aMat, null, aMat, aMat, null, aMat}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 4*aOutAmount+(bSawdust?0:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, null, aMat, null, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 2*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, aMat, aMat, aMat, tMt2, aMat, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 5*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, aMat, aMat, null, tMt2, null, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, null, tMt2, null, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, aMat, null, aMat, tMt2, null, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, aMat, null, tMt2, aMat, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, aMat, null, null, tMt2, null, null, tMt2, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 2*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, aMat, null, null, null, aMat, tMt2}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, null, null, aMat, tMt2, aMat, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, aMat, null, aMat, null, null, tMt2}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, aMat, null, aMat, tMt2, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, aMat, null, null, tMt2, null, null, aMat, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 2*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, tMt2, null, null, tMt2, null, aMat, aMat, aMat}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, tMt2, null, null, tMt2, null, null, aMat, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, tMt2, null, null, tMt2, null, aMat, aMat, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, tMt2, aMat, null, tMt2, null, null, aMat, aMat}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 3*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, tMt2, null, null, tMt2, null, aMat, aMat, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 2*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, null, null, null, tMt2, null, null, null, tMt2}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, null, aMat, null, tMt2, null, tMt2, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?4:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, null, null, null, tMt2, null, null, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {null, null, aMat, null, tMt2, null, null, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, tMt2, null, null, null, null, null, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?2:0), aOutDamage));
-	    	if (null != (tList = GT_ModHandler.getRecipeOutputs(new ItemStack[] {aMat, null, null, tMt2, null, null, null, null, null}))) for (int i = 0; i < tList.size(); i++) GT_ModHandler.addPulverisationRecipe(tList.get(i), new ItemStack(aOutItem, 1*aOutAmount+(bSawdust?2:0), aOutDamage));
-		}
-	}
-	
-	public static Field getPublicField(Object aObject, String aField) {
-		Field rField = null;
-		try {
-			rField = aObject.getClass().getDeclaredField(aField);
-		} catch (Throwable e) {}
-		return rField;
-	}
-	
+    private static boolean doCheckChest1 = true;
+    private static boolean doCheckChest2 = true;
+
+    public static void applyUsagesForMaterials(ItemStack aMat, ItemStack aOutput, boolean aBackSmelting, boolean aBackMacerating) {
+        int i;
+        if (aMat == null || aOutput == null) {
+            return;
+        }
+        aMat = aMat.copy();
+        aOutput = aOutput.copy();
+        ItemStack tMt2 = new ItemStack(Item.stick, 1);
+        if (aOutput.stackSize < 1) {
+            aOutput.stackSize = 1;
+        }
+        boolean bSawdust = aOutput.isItemEqual(GT_MetaItem_SmallDust.instance.getStack(15, 1));
+        if (!aMat.isItemEqual(new ItemStack(Item.ingotIron, 1))) {
+            ItemStack tStack = GT_ModHandler.getRecipeOutput(new ItemStack[]{aMat, null, aMat, null, aMat, null, null, null, null});
+            if (tStack != null && tStack.isItemEqual(new ItemStack(Item.bucketEmpty, 1))) {
+                GT_ModHandler.removeRecipe(new ItemStack[]{aMat, null, aMat, null, aMat, null, null, null, null});
+            }
+            if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[]{null, null, null, aMat, null, aMat, null, aMat, null})) != null && tStack.isItemEqual(new ItemStack(Item.bucketEmpty, 1))) {
+                GT_ModHandler.removeRecipe(new ItemStack[]{null, null, null, aMat, null, aMat, null, aMat, null});
+            }
+            if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[]{aMat, null, aMat, aMat, aMat, aMat, null, null, null})) != null && tStack.isItemEqual(new ItemStack(Item.minecartEmpty, 1))) {
+                GT_ModHandler.removeRecipe(new ItemStack[]{aMat, null, aMat, aMat, aMat, aMat, null, null, null});
+            }
+            if ((tStack = GT_ModHandler.getRecipeOutput(new ItemStack[]{null, null, null, aMat, null, aMat, aMat, aMat, aMat})) != null && tStack.isItemEqual(new ItemStack(Item.minecartEmpty, 1))) {
+                GT_ModHandler.removeRecipe(new ItemStack[]{null, null, null, aMat, null, aMat, aMat, aMat, aMat});
+            }
+        }
+        int aOutItem = aOutput.itemID;
+        int aOutDamage = aOutput.getItemDamage();
+        int aOutAmount = aOutput.stackSize;
+        int aInItem = aMat.itemID;
+        int aInDamage = aMat.getItemDamage();
+        int aInAmount = aMat.stackSize;
+        ArrayList tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, aMat, aMat, aMat, null, aMat, null, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 5 * aOutAmount + (bSawdust ? 0 : 0), aOutDamage), null, 0, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 5, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, null, aMat, aMat, aMat, aMat, aMat, aMat, aMat});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 8 * aOutAmount + (bSawdust ? 0 : 0), aOutDamage), null, 0, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 8, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, aMat, aMat, aMat, null, aMat, aMat, null, aMat});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 7 * aOutAmount + (bSawdust ? 0 : 0), aOutDamage), null, 0, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 7, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, null, null, aMat, null, aMat, aMat, null, aMat});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 4 * aOutAmount + (bSawdust ? 0 : 0), aOutDamage), null, 0, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 4, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, null, aMat, null, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 2 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 2, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, aMat, aMat, aMat, tMt2, aMat, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 5 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 5, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, aMat, aMat, null, tMt2, null, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, null, tMt2, null, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, aMat, null, aMat, tMt2, null, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, aMat, null, tMt2, aMat, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, aMat, null, null, tMt2, null, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 2 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 2, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, aMat, null, tMt2, null, null, tMt2, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 2 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 2, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, aMat, null, null, null, aMat, tMt2});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, null, null, aMat, tMt2, aMat, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, aMat, null, aMat, null, null, tMt2});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, aMat, null, aMat, tMt2, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, aMat, null, null, tMt2, null, null, aMat, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 2 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 2, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, tMt2, null, null, tMt2, null, aMat, aMat, aMat});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, tMt2, null, null, tMt2, null, null, aMat, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, tMt2, null, null, tMt2, null, aMat, aMat, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, tMt2, aMat, null, tMt2, null, null, aMat, aMat});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 3 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 3, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, tMt2, null, null, tMt2, null, aMat, aMat, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 2 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 2, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, null, null, null, tMt2, null, null, null, tMt2});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, null, aMat, null, tMt2, null, tMt2, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 4 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 100, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, null, null, null, tMt2, null, null, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{null, null, aMat, null, tMt2, null, null, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, tMt2, null, null, null, null, null, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+        tList = GT_ModHandler.getRecipeOutputs(new ItemStack[]{aMat, null, null, tMt2, null, null, null, null, null});
+        for (i = 0; i < tList.size(); ++i) {
+            if (aBackMacerating) {
+                GT_ModHandler.addPulverisationRecipe((ItemStack)tList.get(i), new ItemStack(aOutItem, 1 * aOutAmount + (bSawdust ? 2 : 0), aOutDamage), bSawdust ? null : GT_OreDictUnificator.get("dustWood", null, 1), 50, false);
+            }
+            if (!aBackSmelting || ((ItemStack)tList.get((int)i)).stackSize != 1 || aInAmount != 1) continue;
+            GT_ModHandler.addSmeltingRecipe((ItemStack)tList.get(i), new ItemStack(aInItem, 1, aInDamage));
+        }
+    }
+
+    public static Field getPublicField(Object aObject, String aField) {
+        Field rField = null;
+        try {
+            rField = aObject.getClass().getDeclaredField(aField);
+        }
+        catch (Throwable throwable) {
+            // empty catch block
+        }
+        return rField;
+    }
+
+    public static Field getField(Object aObject, String aField) {
+        Field rField = null;
+        try {
+            rField = aObject.getClass().getDeclaredField(aField);
+            rField.setAccessible(true);
+        }
+        catch (Throwable throwable) {
+            // empty catch block
+        }
+        return rField;
+    }
+
+    public static Field getField(Class aObject, String aField) {
+        Field rField = null;
+        try {
+            rField = aObject.getDeclaredField(aField);
+            rField.setAccessible(true);
+        }
+        catch (Throwable throwable) {
+            // empty catch block
+        }
+        return rField;
+    }
+
     public static boolean getPotion(EntityLiving aPlayer, int aPotionIndex) {
-        try  {
-        	Field tPotionHashmap = null;
-        	
-            Field[] var3 = EntityLiving.class.getDeclaredFields();
-            int var4 = var3.length;
-
-            for (int var5 = 0; var5 < var4; ++var5) {
-                Field var6 = var3[var5];
-                if (var6.getType() == HashMap.class) {
-                    tPotionHashmap = var6;
-                    tPotionHashmap.setAccessible(true);
-                    break;
-                }
+        try {
+            Field tPotionHashmap = null;
+            for (Field var6 : EntityLiving.class.getDeclaredFields()) {
+                if (var6.getType() != HashMap.class) continue;
+                tPotionHashmap = var6;
+                tPotionHashmap.setAccessible(true);
+                break;
             }
-
-            if (tPotionHashmap != null) return ((HashMap)tPotionHashmap.get(aPlayer)).get(Integer.valueOf(aPotionIndex)) != null;
-        } catch (Throwable var7) {
-        	
+            if (tPotionHashmap != null) {
+                return ((HashMap)tPotionHashmap.get(aPlayer)).get(aPotionIndex) != null;
+            }
         }
-    	return false;
+        catch (Throwable throwable) {
+            // empty catch block
+        }
+        return false;
     }
-	
+
     public static void removePotion(EntityLiving aPlayer, int aPotionIndex) {
-        try  {
-        	Field tPotionHashmap = null;
-        	
-            Field[] var3 = EntityLiving.class.getDeclaredFields();
-            int var4 = var3.length;
-
-            for (int var5 = 0; var5 < var4; ++var5) {
-                Field var6 = var3[var5];
-                if (var6.getType() == HashMap.class) {
-                    tPotionHashmap = var6;
-                    tPotionHashmap.setAccessible(true);
-                    break;
-                }
+        try {
+            Field tPotionHashmap = null;
+            for (Field var6 : EntityLiving.class.getDeclaredFields()) {
+                if (var6.getType() != HashMap.class) continue;
+                tPotionHashmap = var6;
+                tPotionHashmap.setAccessible(true);
+                break;
             }
-
-            if (tPotionHashmap != null) ((HashMap)tPotionHashmap.get(aPlayer)).remove(Integer.valueOf(aPotionIndex));
-        } catch (Throwable var7) {
-        	
+            if (tPotionHashmap != null) {
+                ((HashMap)tPotionHashmap.get(aPlayer)).remove(aPotionIndex);
+            }
+        }
+        catch (Throwable throwable) {
+            // empty catch block
         }
     }
-	
-	public static boolean getFullInvisibility(EntityPlayer aPlayer) {
-		if (GT_Utility.getPotion(aPlayer, Integer.valueOf(Potion.invisibility.id))) {
-			for (int i = 0; i < 4; i++) {
-				if (aPlayer.inventory.armorInventory[i] != null) {
-					if (aPlayer.inventory.armorInventory[i].getItem() instanceof GT_EnergyArmor_Item) {
-						if ((((GT_EnergyArmor_Item)aPlayer.inventory.armorInventory[i].getItem()).mSpecials & 512) != 0) {
-							if (ElectricItem.canUse(aPlayer.inventory.armorInventory[i], 10000)) {
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	public static ItemStack suckOneItemStackAt(World aWorld, int aX, int aY, int aZ) {
-		Chunk tChunk = aWorld.getChunkFromBlockCoords(aX, aZ);
-		ArrayList<EntityItem> tList = new ArrayList<EntityItem>();
-		tChunk.getEntitiesOfTypeWithinAAAB(EntityItem.class, AxisAlignedBB.getBoundingBox(aX, aY, aZ, aX+1, aY+1, aZ+1), tList, null);
-		if (tList.size()>0) {
-			tChunk.removeEntity(tList.get(0));
-			tList.get(0).setDead();
-			return tList.get(0).func_92014_d();
-		}
-		return null;
-	}
-	
-	private static boolean doCheckChest1 = true, doCheckChest2 = true;
-	
-	public static int moveOneItemStack(IInventory aTileEntity1, IInventory aTileEntity2, ForgeDirection aGrabFrom, ForgeDirection aPutTo, ArrayList<ItemStack> aFilter, int aComplexityCostSidedSided, int aComplexityCostSidedNonSided, int aComplexityCostNonSided, boolean aInvertFilter) {
-		try {
-		if (aTileEntity1 instanceof ISidedInventory) {
-			ISidedInventory tTileEntity1 = (ISidedInventory)aTileEntity1;
-			for (int i = 0; i < tTileEntity1.getSizeInventorySide(aGrabFrom); i++) {
-				if (listContainsItem(aFilter, tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)), true, aInvertFilter)) {
-					if (aTileEntity2 instanceof ISidedInventory) {
-						ISidedInventory tTileEntity2 = (ISidedInventory)aTileEntity2;
-						for (int j = 0; j < tTileEntity2.getSizeInventorySide(aPutTo); j++) {
-							if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)) == null) {
-								if (tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize <= tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getMaxStackSize()) {
-									tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(aPutTo)
-									, tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)));
-									tTileEntity1.setInventorySlotContents(i+tTileEntity1.getStartInventorySide(aGrabFrom), null);
-									return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize*aComplexityCostSidedSided;
-								} else {
-									ItemStack tStack = tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom));
-									tStack.stackSize -= tStack.getMaxStackSize();
-									tStack = tStack.copy();
-									tStack.stackSize = tStack.getMaxStackSize();
-									tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(aPutTo), tStack);
-									return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize*aComplexityCostSidedSided;
-								}
-							} else {
-								if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).isItemEqual(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)))) {
-									int tTransferredStackSize = Math.min(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize, tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).getMaxStackSize() - tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize);
-									if (tTransferredStackSize > 0 && tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).getTagCompound() == null && tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getTagCompound() == null) {
-										tTileEntity1.decrStackSize(i+tTileEntity1.getStartInventorySide(aGrabFrom), tTransferredStackSize);
-										tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize += tTransferredStackSize;
-										return tTransferredStackSize*aComplexityCostSidedSided;
-									}
-								}
-							}
-						}
-					} else {
-						for (int j = 0; j < aTileEntity2.getSizeInventory(); j++) {
-							if (aTileEntity2.getStackInSlot(j) == null) {
-								if (tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize <= tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getMaxStackSize()) {
-									aTileEntity2.setInventorySlotContents(j
-									, tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)));
-									tTileEntity1.setInventorySlotContents(i+tTileEntity1.getStartInventorySide(aGrabFrom), null);
-									return aTileEntity2.getStackInSlot(j).stackSize*aComplexityCostSidedNonSided;
-								} else {
-									ItemStack tStack = tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom));
-									tStack.stackSize -= tStack.getMaxStackSize();
-									tStack = tStack.copy();
-									tStack.stackSize = tStack.getMaxStackSize();
-									aTileEntity2.setInventorySlotContents(j, tStack);
-									return aTileEntity2.getStackInSlot(j).stackSize*aComplexityCostSidedNonSided;
-								}
-							} else {
-								if (aTileEntity2.getStackInSlot(j).isItemEqual(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)))) {
-									int tTransferredStackSize = Math.min(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize, aTileEntity2.getStackInSlot(j).getMaxStackSize() - aTileEntity2.getStackInSlot(j).stackSize);
-									if (tTransferredStackSize > 0 && aTileEntity2.getStackInSlot(j).getTagCompound() == null && tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getTagCompound() == null) {
-										tTileEntity1.decrStackSize(i+tTileEntity1.getStartInventorySide(aGrabFrom), tTransferredStackSize);
-										aTileEntity2.getStackInSlot(j).stackSize += tTransferredStackSize;
-										return tTransferredStackSize*aComplexityCostSidedNonSided;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		} else {
-			for (int i = 0; i < aTileEntity1.getSizeInventory(); i++) {
-				if (listContainsItem(aFilter, aTileEntity1.getStackInSlot(i), true, aInvertFilter)) {
-					if (aTileEntity2 instanceof ISidedInventory) {
-						ISidedInventory tTileEntity2 = (ISidedInventory)aTileEntity2;
-						for (int j = 0; j < tTileEntity2.getSizeInventorySide(aPutTo); j++) {
-							if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)) == null) {
-								if (aTileEntity1.getStackInSlot(i).stackSize <= aTileEntity1.getStackInSlot(i).getMaxStackSize()) {
-									tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(aPutTo)
-									, aTileEntity1.getStackInSlot(i));
-									aTileEntity1.setInventorySlotContents(i, null);
-									return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize*aComplexityCostSidedNonSided;
-								} else {
-									ItemStack tStack = aTileEntity1.getStackInSlot(i);
-									tStack.stackSize -= tStack.getMaxStackSize();
-									tStack = tStack.copy();
-									tStack.stackSize = tStack.getMaxStackSize();
-									tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(aPutTo), tStack);
-									return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize*aComplexityCostSidedNonSided;
-								}
-							} else {
-								if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).isItemEqual(aTileEntity1.getStackInSlot(i))) {
-									int tTransferredStackSize = Math.min(aTileEntity1.getStackInSlot(i).stackSize, tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).getMaxStackSize() - tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize);
-									if (tTransferredStackSize > 0 && tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).getTagCompound() == null && aTileEntity1.getStackInSlot(i).getTagCompound() == null) {
-										aTileEntity1.decrStackSize(i, tTransferredStackSize);
-										tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(aPutTo)).stackSize += tTransferredStackSize;
-										return tTransferredStackSize*aComplexityCostSidedNonSided;
-									}
-								}
-							}
-						}
-					} else {
-						for (int j = 0; j < aTileEntity2.getSizeInventory(); j++) {
-							if (aTileEntity2.getStackInSlot(j) == null) {
-								if (aTileEntity1.getStackInSlot(i).stackSize <= aTileEntity1.getStackInSlot(i).getMaxStackSize()) {
-									aTileEntity2.setInventorySlotContents(j
-									, aTileEntity1.getStackInSlot(i));
-									aTileEntity1.setInventorySlotContents(i, null);
-									return aTileEntity2.getStackInSlot(j).stackSize * aComplexityCostNonSided;
-								} else {
-									ItemStack tStack = aTileEntity1.getStackInSlot(i);
-									tStack.stackSize -= tStack.getMaxStackSize();
-									tStack = tStack.copy();
-									tStack.stackSize = tStack.getMaxStackSize();
-									aTileEntity2.setInventorySlotContents(j, tStack);
-									return aTileEntity2.getStackInSlot(j).stackSize * aComplexityCostNonSided;
-								}
-							} else {
-								if (aTileEntity2.getStackInSlot(j).isItemEqual(aTileEntity1.getStackInSlot(i))) {
-									int tTransferredStackSize = Math.min(aTileEntity1.getStackInSlot(i).stackSize, aTileEntity2.getStackInSlot(j).getMaxStackSize() - aTileEntity2.getStackInSlot(j).stackSize);
-									if (tTransferredStackSize > 0 && aTileEntity2.getStackInSlot(j).getTagCompound() == null && aTileEntity1.getStackInSlot(i).getTagCompound() == null) {
-										aTileEntity1.decrStackSize(i, tTransferredStackSize);
-										aTileEntity2.getStackInSlot(j).stackSize += tTransferredStackSize;
-										return tTransferredStackSize * aComplexityCostNonSided;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		} catch(NullPointerException e) {
-			return 32*aComplexityCostSidedNonSided;
-		}
-		if (doCheckChest1 && aTileEntity1 instanceof TileEntityChest) {
-			TileEntityChest tTileEntity1 = (TileEntityChest)aTileEntity1;
-			if (tTileEntity1.adjacentChestChecked) {
-				doCheckChest1 = false;
-				int tAmount = 0;
-				if (tTileEntity1.adjacentChestXNeg != null) {
-					tAmount = moveOneItemStack(tTileEntity1.adjacentChestXNeg, aTileEntity2, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				if (tTileEntity1.adjacentChestZNeg != null) {
-					tAmount = moveOneItemStack(tTileEntity1.adjacentChestZNeg, aTileEntity2, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				if (tTileEntity1.adjacentChestXPos != null) {
-					tAmount = moveOneItemStack(tTileEntity1.adjacentChestXPos, aTileEntity2, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				if (tTileEntity1.adjacentChestZPosition != null) {
-					tAmount = moveOneItemStack(tTileEntity1.adjacentChestZPosition, aTileEntity2, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				doCheckChest1 = true;
-				if (tAmount != 0) return tAmount;
-			}
-		}
-		if (doCheckChest2 && aTileEntity2 instanceof TileEntityChest) {
-			TileEntityChest tTileEntity2 = (TileEntityChest)aTileEntity2;
-			if (tTileEntity2.adjacentChestChecked) {
-				doCheckChest2 = false;
-				int tAmount = 0;
-				if (tTileEntity2.adjacentChestXNeg != null) {
-					tAmount = moveOneItemStack(aTileEntity1, tTileEntity2.adjacentChestXNeg, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				if (tTileEntity2.adjacentChestZNeg != null) {
-					tAmount = moveOneItemStack(aTileEntity1, tTileEntity2.adjacentChestZNeg, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				if (tTileEntity2.adjacentChestXPos != null) {
-					tAmount = moveOneItemStack(aTileEntity1, tTileEntity2.adjacentChestXPos, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				if (tTileEntity2.adjacentChestZPosition != null) {
-					tAmount = moveOneItemStack(aTileEntity1, tTileEntity2.adjacentChestZPosition, aGrabFrom, aPutTo, aFilter, aComplexityCostSidedSided, aComplexityCostSidedNonSided, aComplexityCostNonSided, aInvertFilter);
-				}
-				doCheckChest2 = true;
-				if (tAmount != 0) return tAmount;
-			}
-		}
-		return 0;
-	}
-	
-	public static int moveOneItemStackIntoSlot(IInventory aTileEntity1, IInventory aTileEntity2, ForgeDirection aGrabFrom, int aPutTo, ArrayList<ItemStack> aFilter, int aComplexityCostSidedSided, int aComplexityCostSidedNonSided, int aComplexityCostNonSided, boolean aInvertFilter) {
-		try {
-		if (aTileEntity1 instanceof ISidedInventory) {
-			ISidedInventory tTileEntity1 = (ISidedInventory)aTileEntity1;
-			for (int i = 0; i < tTileEntity1.getSizeInventorySide(aGrabFrom); i++) {
-				if (listContainsItem(aFilter, tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)), true, aInvertFilter)) {
-					if (aTileEntity2 instanceof ISidedInventory) {
-						ISidedInventory tTileEntity2 = (ISidedInventory)aTileEntity2;
-						for (int d = 0; d < ForgeDirection.values().length; d++) {
-							for (int j = 0; j < tTileEntity2.getSizeInventorySide(ForgeDirection.values()[d]); j++) {
-								if (aPutTo == j + tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])) {
-									if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])) == null) {
-										if (tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize <= tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getMaxStackSize()) {
-											tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])
-											, tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)));
-											tTileEntity1.setInventorySlotContents(i+tTileEntity1.getStartInventorySide(aGrabFrom), null);
-											return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize*aComplexityCostSidedSided;
-										} else {
-											ItemStack tStack = tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom));
-											tStack.stackSize -= tStack.getMaxStackSize();
-											tStack = tStack.copy();
-											tStack.stackSize = tStack.getMaxStackSize();
-											tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d]), tStack);
-											return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize*aComplexityCostSidedSided;
-										}
-									} else {
-										if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).isItemEqual(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)))) {
-											int tTransferredStackSize = Math.min(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize, tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).getMaxStackSize() - tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize);
-											if (tTransferredStackSize > 0 && tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).getTagCompound() == null && tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getTagCompound() == null) {
-												tTileEntity1.decrStackSize(i+tTileEntity1.getStartInventorySide(aGrabFrom), tTransferredStackSize);
-												tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize += tTransferredStackSize;
-												return tTransferredStackSize*aComplexityCostSidedSided;
-											}
-										}
-									}
-								}
-							}
-						}
-					} else {
-						if (aPutTo < aTileEntity2.getSizeInventory()) {
-							if (aTileEntity2.getStackInSlot(aPutTo) == null) {
-								if (tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize <= tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getMaxStackSize()) {
-									aTileEntity2.setInventorySlotContents(aPutTo
-									, tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)));
-									tTileEntity1.setInventorySlotContents(i+tTileEntity1.getStartInventorySide(aGrabFrom), null);
-									return aTileEntity2.getStackInSlot(aPutTo).stackSize*aComplexityCostSidedNonSided;
-								} else {
-									ItemStack tStack = tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom));
-									tStack.stackSize -= tStack.getMaxStackSize();
-									tStack = tStack.copy();
-									tStack.stackSize = tStack.getMaxStackSize();
-									aTileEntity2.setInventorySlotContents(aPutTo, tStack);
-									return aTileEntity2.getStackInSlot(aPutTo).stackSize*aComplexityCostSidedNonSided;
-								}
-							} else {
-								if (aTileEntity2.getStackInSlot(aPutTo).isItemEqual(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)))) {
-									int tTransferredStackSize = Math.min(tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).stackSize, aTileEntity2.getStackInSlot(aPutTo).getMaxStackSize() - aTileEntity2.getStackInSlot(aPutTo).stackSize);
-									if (tTransferredStackSize > 0 && aTileEntity2.getStackInSlot(aPutTo).getTagCompound() == null && tTileEntity1.getStackInSlot(i+tTileEntity1.getStartInventorySide(aGrabFrom)).getTagCompound() == null) {
-										tTileEntity1.decrStackSize(i+tTileEntity1.getStartInventorySide(aGrabFrom), tTransferredStackSize);
-										aTileEntity2.getStackInSlot(aPutTo).stackSize += tTransferredStackSize;
-										return tTransferredStackSize*aComplexityCostSidedNonSided;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		} else {
-			for (int i = 0; i < aTileEntity1.getSizeInventory(); i++) {
-				if (listContainsItem(aFilter, aTileEntity1.getStackInSlot(i), true, aInvertFilter)) {
-					if (aTileEntity2 instanceof ISidedInventory) {
-						ISidedInventory tTileEntity2 = (ISidedInventory)aTileEntity2;
-						for (int d = 0; d < ForgeDirection.values().length; d++) {
-							for (int j = 0; j < tTileEntity2.getSizeInventorySide(ForgeDirection.values()[d]); j++) {
-								if (aPutTo == j + tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])) {
-									if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])) == null) {
-										if (aTileEntity1.getStackInSlot(i).stackSize <= aTileEntity1.getStackInSlot(i).getMaxStackSize()) {
-											tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])
-											, aTileEntity1.getStackInSlot(i));
-											aTileEntity1.setInventorySlotContents(i, null);
-											return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize*aComplexityCostSidedNonSided;
-										} else {
-											ItemStack tStack = aTileEntity1.getStackInSlot(i);
-											tStack.stackSize -= tStack.getMaxStackSize();
-											tStack = tStack.copy();
-											tStack.stackSize = tStack.getMaxStackSize();
-											tTileEntity2.setInventorySlotContents(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d]), tStack);
-											return tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize*aComplexityCostSidedNonSided;
-										}
-									} else {
-										if (tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).isItemEqual(aTileEntity1.getStackInSlot(i))) {
-											int tTransferredStackSize = Math.min(aTileEntity1.getStackInSlot(i).stackSize, tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).getMaxStackSize() - tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize);
-											if (tTransferredStackSize > 0 && tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).getTagCompound() == null && aTileEntity1.getStackInSlot(i).getTagCompound() == null) {
-												aTileEntity1.decrStackSize(i, tTransferredStackSize);
-												tTileEntity2.getStackInSlot(j+tTileEntity2.getStartInventorySide(ForgeDirection.values()[d])).stackSize += tTransferredStackSize;
-												return tTransferredStackSize*aComplexityCostSidedNonSided;
-											}
-										}
-									}
-								}
-							}
-						}
-					} else {
-						if (aPutTo < aTileEntity2.getSizeInventory()) {
-							if (aTileEntity2.getStackInSlot(aPutTo) == null) {
-								if (aTileEntity1.getStackInSlot(i).stackSize <= aTileEntity1.getStackInSlot(i).getMaxStackSize()) {
-									aTileEntity2.setInventorySlotContents(aPutTo
-									, aTileEntity1.getStackInSlot(i));
-									aTileEntity1.setInventorySlotContents(i, null);
-									return aTileEntity2.getStackInSlot(aPutTo).stackSize * aComplexityCostNonSided;
-								} else {
-									ItemStack tStack = aTileEntity1.getStackInSlot(i);
-									tStack.stackSize -= tStack.getMaxStackSize();
-									tStack = tStack.copy();
-									tStack.stackSize = tStack.getMaxStackSize();
-									aTileEntity2.setInventorySlotContents(aPutTo, tStack);
-									return aTileEntity2.getStackInSlot(aPutTo).stackSize * aComplexityCostNonSided;
-								}
-							} else {
-								if (aTileEntity2.getStackInSlot(aPutTo).isItemEqual(aTileEntity1.getStackInSlot(i))) {
-									int tTransferredStackSize = Math.min(aTileEntity1.getStackInSlot(i).stackSize, aTileEntity2.getStackInSlot(aPutTo).getMaxStackSize() - aTileEntity2.getStackInSlot(aPutTo).stackSize);
-									if (tTransferredStackSize > 0 && aTileEntity2.getStackInSlot(aPutTo).getTagCompound() == null && aTileEntity1.getStackInSlot(i).getTagCompound() == null) {
-										aTileEntity1.decrStackSize(i, tTransferredStackSize);
-										aTileEntity2.getStackInSlot(aPutTo).stackSize += tTransferredStackSize;
-										return tTransferredStackSize * aComplexityCostNonSided;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		} catch(NullPointerException e) {
-			return 32*aComplexityCostSidedNonSided;
-		}
-		return 0;
-	}
-	
-	public static boolean listContainsItem(ArrayList<ItemStack> aList, ItemStack aStack, boolean aTrueIfListEmpty, boolean aInvertFilter) {
-		if (aStack == null || aStack.stackSize < 1) return false;
-		if (aList == null) return aTrueIfListEmpty;
-		while (aList.contains(null)) aList.remove(null);
-		if (aList.size() < 1) return aTrueIfListEmpty;
-		Iterator<ItemStack> tIterator = aList.iterator();
-		ItemStack tStack = null;
-		while (tIterator.hasNext()) if ((tStack = tIterator.next())!= null && (aStack.isItemEqual(tStack) != aInvertFilter)) return true;
-		return false;
-	}
-	
-	public static ItemStack getContainerForFilledItem(ItemStack aStack) {
-		if (aStack == null || aStack.isItemEqual(GT_ModHandler.getIC2Item("matter", 1))) return null;
-		LiquidContainerData tData[] = LiquidContainerRegistry.getRegisteredLiquidContainerData();
-		for (int i = 0; i < tData.length; i++)
-			if (tData[i].filled != null && tData[i].filled.isItemEqual(aStack))
-				return tData[i].container;
-		return null;
-	}
-	
-	public static boolean removeSimpleIC2MachineRecipe(ItemStack aInput, ItemStack aOutput, List<Map.Entry<ItemStack, ItemStack>> aRecipeList) {
-		if (aInput == null && aOutput == null) return false;
-		Iterator<Map.Entry<ItemStack, ItemStack>> tIterator = aRecipeList.iterator();
-		while (tIterator.hasNext()) {
-			Map.Entry<ItemStack, ItemStack> tEntry = tIterator.next();
-			ItemStack tInput = tEntry.getKey(), tOutput = tEntry.getValue();
-			if ((aInput == null || tInput.isItemEqual(aInput)) && (aOutput == null || tOutput.isItemEqual(aOutput))) {
-				aRecipeList.remove(tEntry);
-				removeSimpleIC2MachineRecipe(aInput, aOutput, aRecipeList);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public static int stackToInt(ItemStack aStack) {
-		if (aStack == null) return 0;
-		return aStack.itemID | (((short)aStack.getItemDamage()) << 16);
-	}
-	
-	public static ItemStack intToStack(int aStack) {
-		if (aStack == 0) return null;
-		return new ItemStack(aStack & 65535, 1, aStack >> 16);
-	}
+
+    public static boolean getFullInvisibility(EntityPlayer aPlayer) {
+        if (GT_Utility.getPotion((EntityLiving)aPlayer, Potion.invisibility.id)) {
+            for (int i = 0; i < 4; ++i) {
+                if (aPlayer.inventory.armorInventory[i] == null || !(aPlayer.inventory.armorInventory[i].getItem() instanceof GT_EnergyArmor_Item) || (((GT_EnergyArmor_Item)aPlayer.inventory.armorInventory[i].getItem()).mSpecials & 0x200) == 0 || !ElectricItem.canUse((ItemStack)aPlayer.inventory.armorInventory[i], (int)10000)) continue;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static ItemStack suckOneItemStackAt(World aWorld, int aX, int aY, int aZ, int aL, int aH, int aW) {
+        Chunk tChunk = aWorld.getChunkFromBlockCoords(aX, aZ);
+        ArrayList tList = new ArrayList();
+        tChunk.getEntitiesOfTypeWithinAAAB(EntityItem.class, AxisAlignedBB.getBoundingBox((double)aX, (double)aY, (double)aZ, (double)(aX + aL), (double)(aY + aH), (double)(aZ + aW)), tList, null);
+        if (tList.size() > 0) {
+            tChunk.removeEntity((Entity)tList.get(0));
+            ((EntityItem)tList.get(0)).setDead();
+            return ((EntityItem)tList.get(0)).getEntityItem();
+        }
+        return null;
+    }
+
+    public static boolean isValidSlot(IInventory aTileEntity, int aSlot) {
+        if (aTileEntity != null && aSlot >= 0) {
+            if (aTileEntity instanceof ISidedInventory) {
+                ISidedInventory tTileEntity = (ISidedInventory)aTileEntity;
+                for (int i = 0; i < 7; ++i) {
+                    ForgeDirection tSide = ForgeDirection.getOrientation((int)i);
+                    if (aSlot < tTileEntity.getStartInventorySide(tSide) || aSlot >= tTileEntity.getStartInventorySide(tSide) + tTileEntity.getSizeInventorySide(tSide)) continue;
+                    return true;
+                }
+            } else {
+                return aSlot < aTileEntity.getSizeInventory();
+            }
+        }
+        return false;
+    }
+
+    public static int getIndexFromInventorySide(IInventory aTileEntity, ForgeDirection aGrabFrom, int aSubIndex) {
+        if (aTileEntity != null) {
+            if (aTileEntity instanceof ISidedInventory) {
+                if (aSubIndex < ((ISidedInventory)aTileEntity).getSizeInventorySide(aGrabFrom)) {
+                    return ((ISidedInventory)aTileEntity).getStartInventorySide(aGrabFrom) + aSubIndex;
+                }
+            } else if (aSubIndex < aTileEntity.getSizeInventory()) {
+                return aSubIndex;
+            }
+        }
+        return -1;
+    }
+
+    public static int moveStackFromSlotAToSlotB(IInventory aTileEntity1, IInventory aTileEntity2, int aGrabFrom, int aPutTo, int aMaxTargetStackSize, int aMinTargetStackSize, int aMaxMoveAtOnce, int aMinMoveAtOnce) {
+        if (aTileEntity1 == null || aTileEntity2 == null || aMaxTargetStackSize <= 0 || aMinTargetStackSize <= 0 || aMinTargetStackSize > aMaxTargetStackSize || aMaxMoveAtOnce <= 0 || aMinMoveAtOnce > aMaxMoveAtOnce) {
+            return 0;
+        }
+        ItemStack tStack1 = aTileEntity1.getStackInSlot(aGrabFrom);
+        ItemStack tStack2 = aTileEntity2.getStackInSlot(aPutTo);
+        ItemStack tStack3 = null;
+        if (tStack1 != null) {
+            if (!(tStack2 == null || tStack1.isItemEqual(tStack2) && ItemStack.areItemStackTagsEqual((ItemStack)tStack1, (ItemStack)tStack2))) {
+                return 0;
+            }
+            tStack3 = tStack1.copy();
+            aMaxTargetStackSize = Math.min(aMaxTargetStackSize, Math.min(tStack3.getMaxStackSize(), Math.min(tStack2 == null ? Integer.MAX_VALUE : tStack2.getMaxStackSize(), aTileEntity2.getInventoryStackLimit())));
+            tStack3.stackSize = Math.min(tStack3.stackSize, aMaxTargetStackSize - (tStack2 == null ? 0 : tStack2.stackSize));
+            if (tStack3.stackSize > aMaxMoveAtOnce) {
+                tStack3.stackSize = aMaxMoveAtOnce;
+            }
+            if (tStack3.stackSize + (tStack2 == null ? 0 : tStack2.stackSize) >= aMinTargetStackSize && tStack3.stackSize >= aMinMoveAtOnce && (tStack3 = aTileEntity1.decrStackSize(aGrabFrom, tStack3.stackSize)) != null) {
+                if (tStack2 == null) {
+                    aTileEntity2.setInventorySlotContents(aPutTo, tStack3.copy());
+                } else {
+                    tStack2.stackSize += tStack3.stackSize;
+                }
+                return tStack3.stackSize;
+            }
+        }
+        return 0;
+    }
+
+    public static int moveOneItemStack(IInventory aTileEntity1, IInventory aTileEntity2, ForgeDirection aGrabFrom, ForgeDirection aPutTo, ArrayList aFilter, boolean aInvertFilter, int aMaxTargetStackSize, int aMinTargetStackSize, int aMaxMoveAtOnce, int aMinMoveAtOnce) {
+        int tAmount;
+        if (aTileEntity1 == null || aTileEntity2 == null || aGrabFrom == null || aPutTo == null || aMaxTargetStackSize <= 0 || aMinTargetStackSize <= 0 || aMaxMoveAtOnce <= 0 || aMinTargetStackSize > aMaxTargetStackSize || aMinMoveAtOnce > aMaxMoveAtOnce) {
+            return 0;
+        }
+        int i = -1;
+        int tGrabIndex = -1;
+        int tPutIndex = -1;
+        int tMovedItemCount = 0;
+        Object tStack1 = null;
+        Object tStack2 = null;
+        Object tStack3 = null;
+        while ((tGrabIndex = GT_Utility.getIndexFromInventorySide(aTileEntity1, aGrabFrom, ++i)) >= 0) {
+            int j = -1;
+            while ((tPutIndex = GT_Utility.getIndexFromInventorySide(aTileEntity2, aPutTo, ++j)) >= 0) {
+                if (!GT_Utility.listContainsItem(aFilter, aTileEntity1.getStackInSlot(tGrabIndex), true, aInvertFilter) || (tMovedItemCount = GT_Utility.moveStackFromSlotAToSlotB(aTileEntity1, aTileEntity2, tGrabIndex, tPutIndex, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce)) <= 0) continue;
+                return tMovedItemCount;
+            }
+        }
+        if (doCheckChest1 && aTileEntity1 instanceof TileEntityChest) {
+            TileEntityChest tTileEntity1 = (TileEntityChest)aTileEntity1;
+            if (tTileEntity1.adjacentChestChecked) {
+                doCheckChest1 = false;
+                tAmount = 0;
+                if (tTileEntity1.adjacentChestXNeg != null) {
+                    tAmount = GT_Utility.moveOneItemStack((IInventory)tTileEntity1.adjacentChestXNeg, aTileEntity2, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                } else if (tTileEntity1.adjacentChestZNeg != null) {
+                    tAmount = GT_Utility.moveOneItemStack((IInventory)tTileEntity1.adjacentChestZNeg, aTileEntity2, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                } else if (tTileEntity1.adjacentChestXPos != null) {
+                    tAmount = GT_Utility.moveOneItemStack((IInventory)tTileEntity1.adjacentChestXPos, aTileEntity2, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                } else if (tTileEntity1.adjacentChestZPosition != null) {
+                    tAmount = GT_Utility.moveOneItemStack((IInventory)tTileEntity1.adjacentChestZPosition, aTileEntity2, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                }
+                doCheckChest1 = true;
+                if (tAmount != 0) {
+                    return tAmount;
+                }
+            }
+        }
+        if (doCheckChest2 && aTileEntity2 instanceof TileEntityChest) {
+            TileEntityChest tTileEntity2 = (TileEntityChest)aTileEntity2;
+            if (tTileEntity2.adjacentChestChecked) {
+                doCheckChest2 = false;
+                tAmount = 0;
+                if (tTileEntity2.adjacentChestXNeg != null) {
+                    tAmount = GT_Utility.moveOneItemStack(aTileEntity1, (IInventory)tTileEntity2.adjacentChestXNeg, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                } else if (tTileEntity2.adjacentChestZNeg != null) {
+                    tAmount = GT_Utility.moveOneItemStack(aTileEntity1, (IInventory)tTileEntity2.adjacentChestZNeg, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                } else if (tTileEntity2.adjacentChestXPos != null) {
+                    tAmount = GT_Utility.moveOneItemStack(aTileEntity1, (IInventory)tTileEntity2.adjacentChestXPos, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                } else if (tTileEntity2.adjacentChestZPosition != null) {
+                    tAmount = GT_Utility.moveOneItemStack(aTileEntity1, (IInventory)tTileEntity2.adjacentChestZPosition, aGrabFrom, aPutTo, aFilter, aInvertFilter, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
+                }
+                doCheckChest2 = true;
+                if (tAmount != 0) {
+                    return tAmount;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public static int moveOneItemStackIntoSlot(IInventory aTileEntity1, IInventory aTileEntity2, ForgeDirection aGrabFrom, int aPutTo, ArrayList aFilter, boolean aInvertFilter, int aMaxTargetStackSize, int aMinTargetStackSize, int aMaxMoveAtOnce, int aMinMoveAtOnce) {
+        if (aTileEntity1 == null || aTileEntity2 == null || aGrabFrom == null || aPutTo < 0 || aMaxTargetStackSize <= 0 || aMinTargetStackSize <= 0 || aMaxMoveAtOnce <= 0 || aMinTargetStackSize > aMaxTargetStackSize || aMinMoveAtOnce > aMaxMoveAtOnce || !GT_Utility.isValidSlot(aTileEntity2, aPutTo)) {
+            return 0;
+        }
+        try {
+            int i = -1;
+            int j = -1;
+            int tGrabIndex = -1;
+            int tMovedItemCount = 0;
+            Object tStack1 = null;
+            Object tStack2 = null;
+            Object tStack3 = null;
+            while ((tGrabIndex = GT_Utility.getIndexFromInventorySide(aTileEntity1, aGrabFrom, ++i)) >= 0) {
+                if (!GT_Utility.listContainsItem(aFilter, aTileEntity1.getStackInSlot(tGrabIndex), true, aInvertFilter) || (tMovedItemCount = GT_Utility.moveStackFromSlotAToSlotB(aTileEntity1, aTileEntity2, tGrabIndex, aPutTo, aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce)) <= 0) continue;
+                return tMovedItemCount;
+            }
+        }
+        catch (NullPointerException e) {
+            e.printStackTrace(GT_Log.out);
+        }
+        return 0;
+    }
+
+    public static boolean listContainsItem(ArrayList aList, ItemStack aStack, boolean aTrueIfListEmpty, boolean aInvertFilter) {
+        if (aStack == null || aStack.stackSize < 1) {
+            return false;
+        }
+        if (aList == null) {
+            return aTrueIfListEmpty;
+        }
+        while (aList.contains(null)) {
+            aList.remove(null);
+        }
+        if (aList.size() < 1) {
+            return aTrueIfListEmpty;
+        }
+        Iterator tIterator = aList.iterator();
+        ItemStack tStack = null;
+        while (tIterator.hasNext()) {
+            tStack = (ItemStack)tIterator.next();
+            if (tStack == null || !GT_Utility.areStacksEqual(aStack, tStack)) continue;
+            return !aInvertFilter;
+        }
+        return aInvertFilter;
+    }
+
+    public static boolean areStacksEqual(ItemStack aStack1, ItemStack aStack2) {
+        if (aStack1 == null || aStack2 == null || aStack1.itemID != aStack2.itemID) {
+            return false;
+        }
+        return aStack1.getItemDamage() == aStack2.getItemDamage() || aStack1.getItemDamage() == -1 || aStack2.getItemDamage() == -1;
+    }
+
+    public static ItemStack getContainerForFilledItem(ItemStack aStack) {
+        if (aStack == null || aStack.isItemEqual(GT_ModHandler.getIC2Item("matter", 1))) {
+            return null;
+        }
+        LiquidContainerData[] tData = LiquidContainerRegistry.getRegisteredLiquidContainerData();
+        for (int i = 0; i < tData.length; ++i) {
+            if (tData[i].filled == null || !tData[i].filled.isItemEqual(aStack)) continue;
+            return tData[i].container;
+        }
+        return null;
+    }
+
+    public static boolean removeSimpleIC2MachineRecipe(ItemStack aInput, ItemStack aOutput, List<Map.Entry<ItemStack, ItemStack>> aRecipeList) {
+        if (aInput == null && aOutput == null) return false;
+        Iterator<Map.Entry<ItemStack, ItemStack>> tIterator = aRecipeList.iterator();
+        while (tIterator.hasNext()) {
+            Map.Entry<ItemStack, ItemStack> tEntry = tIterator.next();
+            ItemStack tInput = tEntry.getKey(), tOutput = tEntry.getValue();
+            if ((aInput == null || tInput.isItemEqual(aInput)) && (aOutput == null || tOutput.isItemEqual(aOutput))) {
+                aRecipeList.remove(tEntry);
+                removeSimpleIC2MachineRecipe(aInput, aOutput, aRecipeList);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int stackToInt(ItemStack aStack) {
+        if (aStack == null) {
+            return 0;
+        }
+        return aStack.itemID | aStack.getItemDamage() << 16;
+    }
 }
+

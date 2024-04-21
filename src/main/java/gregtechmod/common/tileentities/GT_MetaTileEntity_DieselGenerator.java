@@ -1,3 +1,16 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  net.minecraft.block.Block
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.item.ItemStack
+ *  net.minecraftforge.liquids.ILiquidTank
+ *  net.minecraftforge.liquids.LiquidContainerRegistry
+ *  net.minecraftforge.liquids.LiquidEvent
+ *  net.minecraftforge.liquids.LiquidEvent$LiquidFillingEvent
+ *  net.minecraftforge.liquids.LiquidStack
+ */
 package gregtechmod.common.tileentities;
 
 import gregtechmod.GT_Mod;
@@ -6,256 +19,272 @@ import gregtechmod.api.GT_Recipe;
 import gregtechmod.api.MetaTileEntity;
 import gregtechmod.common.GT_ModHandler;
 import gregtechmod.common.GT_Utility;
+import gregtechmod.common.tileentities.GT_MetaTileEntity_BasicTank;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.liquids.ILiquidTank;
 import net.minecraftforge.liquids.LiquidContainerRegistry;
 import net.minecraftforge.liquids.LiquidEvent;
 import net.minecraftforge.liquids.LiquidStack;
 
-public class GT_MetaTileEntity_DieselGenerator extends MetaTileEntity {
-	
-	public LiquidStack mLiquid = new LiquidStack(0, 0, 0);
-	
-	public GT_MetaTileEntity_DieselGenerator(int aID, String mName, String mNameRegional) {
-		super(aID, mName, mNameRegional);
-	}
-	
-	public GT_MetaTileEntity_DieselGenerator() {
-		
-	}
-	
-	@Override public boolean isSimpleMachine()						{return false;}
-	@Override public boolean isValidSlot(int aIndex)				{return aIndex < 2;}
-	@Override public boolean isFacingValid(int aFacing)				{return false;}
-	@Override public boolean isEnetOutput() 						{return true;}
-	@Override public boolean isOutputFacing(short aSide)			{return true;}
-	@Override public int maxEUOutput()								{return 12;}
-	@Override public int getInvSize()								{return 3;}
-	@Override public int maxEUStore()								{return 1000000;}
-	@Override public void onRightclick(EntityPlayer aPlayer)		{aPlayer.openGui(GT_Mod.instance, 117, mBaseMetaTileEntity.worldObj, mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord);}
-	@Override public boolean isAccessAllowed(EntityPlayer aPlayer)	{return true;}
-    
-	@Override
-	public MetaTileEntity newMetaEntity(BaseMetaTileEntity aTileEntity) {
-		return new GT_MetaTileEntity_DieselGenerator();
-	}
-	
-	@Override
-	public void saveNBTData(NBTTagCompound aNBT) {
-		if (mLiquid != null) {
-			aNBT.setInteger("mItemCount", mLiquid.amount);
-    		aNBT.setInteger("mItemID"	, mLiquid.itemID);
-    		aNBT.setInteger("mItemMeta"	, mLiquid.itemMeta);
-		}
-	}
-	
-	@Override
-	public void loadNBTData(NBTTagCompound aNBT) {
-    	mLiquid = new LiquidStack(aNBT.getInteger("mItemID"), aNBT.getInteger("mItemCount"), aNBT.getInteger("mItemMeta"));
-	}
-	
+public class GT_MetaTileEntity_DieselGenerator
+extends GT_MetaTileEntity_BasicTank {
+    public GT_MetaTileEntity_DieselGenerator(int aID, String mName, String mNameRegional) {
+        super(aID, mName, mNameRegional);
+    }
+
+    public GT_MetaTileEntity_DieselGenerator() {
+    }
+
+    @Override
+    public boolean isSimpleMachine() {
+        return false;
+    }
+
+    @Override
+    public boolean isValidSlot(int aIndex) {
+        return aIndex < 2;
+    }
+
+    @Override
+    public boolean isFacingValid(int aFacing) {
+        return false;
+    }
+
+    @Override
+    public boolean isEnetOutput() {
+        return true;
+    }
+
+    @Override
+    public boolean isOutputFacing(short aSide) {
+        return true;
+    }
+
+    @Override
+    public int maxEUOutput() {
+        return 12;
+    }
+
+    @Override
+    public int maxEUStore() {
+        return 1000000;
+    }
+
+    @Override
+    public void onRightclick(EntityPlayer aPlayer) {
+        aPlayer.openGui((Object)GT_Mod.instance, 117, this.mBaseMetaTileEntity.worldObj, this.mBaseMetaTileEntity.xCoord, this.mBaseMetaTileEntity.yCoord, this.mBaseMetaTileEntity.zCoord);
+    }
+
+    @Override
+    public boolean isAccessAllowed(EntityPlayer aPlayer) {
+        return true;
+    }
+
+    @Override
+    public MetaTileEntity newMetaEntity(BaseMetaTileEntity aTileEntity) {
+        return new GT_MetaTileEntity_DieselGenerator();
+    }
+
     @Override
     public void onPostTick() {
-    	if (mLiquid == null || (mLiquid.itemID != 0 && mLiquid.amount == 0)) mLiquid = new LiquidStack(0, 0, 0);
-    	
-    	if (!mBaseMetaTileEntity.worldObj.isRemote && mBaseMetaTileEntity.mTickTimer%10==0) {
-    		
-    		if (mLiquid.itemID <= 0 || mLiquid.amount <= 0) {
-    			mInventory[2] = null;
-    		} else {
-    			mInventory[2] = mLiquid.asItemStack();
-    			if (mBaseMetaTileEntity.getStored() <= 100) {
-    				while (mBaseMetaTileEntity.getStored() < maxEUOutput()*10 && mLiquid.amount > 0) {
-    					if (mBaseMetaTileEntity.increaseStoredEnergy(getFuelValue(mLiquid))) mLiquid.amount--;
-    				}
-    			}
-    		}
-    		if (mInventory[0] != null && mBaseMetaTileEntity.getStored() <= 100) {
-    			for (int i = 0; i < GT_Recipe.sDieselFuels.size(); i++) {
-    				if (mInventory[0].isItemEqual(GT_Recipe.sDieselFuels.get(i).mInput1)) {
-    					if (LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0]) == null) {
-    						if (GT_Recipe.sDieselFuels.get(i).mOutput1 != null) {
-    							if (mInventory[1] == null) {
-    								if (mBaseMetaTileEntity.increaseStoredEnergy(GT_Recipe.sDieselFuels.get(i).mStartEU*1000)) {
-    									mBaseMetaTileEntity.decrStackSize(0, 1);
-    									mInventory[1] = GT_Recipe.sDieselFuels.get(i).mOutput1.copy();
-    								}
-    							} else if (mInventory[1].isItemEqual(GT_Recipe.sDieselFuels.get(i).mOutput1) && mInventory[1].stackSize + GT_Recipe.sDieselFuels.get(i).mOutput1.stackSize <= mInventory[1].getMaxStackSize()) {
-    								if (mBaseMetaTileEntity.increaseStoredEnergy(GT_Recipe.sDieselFuels.get(i).mStartEU*1000)) {
-        								mBaseMetaTileEntity.decrStackSize(0, 1);
-        	    						mInventory[1].stackSize += GT_Recipe.sDieselFuels.get(i).mOutput1.stackSize;
-    								}
-    							}
-    						} else {
-    							if (mBaseMetaTileEntity.increaseStoredEnergy(GT_Recipe.sDieselFuels.get(i).mStartEU*1000)) {
-    								mBaseMetaTileEntity.decrStackSize(0, 1);
-    							}
-    						}
-    					}
-    					break;
-    				}
-    			}
-    			int tValue = 0;
-    			if (mInventory[0] != null && (mInventory[1] == null || (mInventory[1].isItemEqual(GT_ModHandler.getIC2Item("fuelCan", 1)) && mInventory[1].stackSize < 64)) && (tValue = GT_ModHandler.getFuelCanValue(mInventory[0])) > 0) {
-    				if (mBaseMetaTileEntity.increaseStoredEnergy((tValue*5)/4)) {
-    					mBaseMetaTileEntity.decrStackSize(0, 1);
-    					if (mInventory[1] == null)
-    						mInventory[1] = GT_ModHandler.getIC2Item("fuelCan", 1);
-    					else
-    						mInventory[1].stackSize++;
-    				}
-    			}
-    			if (mInventory[0] != null && mLiquid.itemID != 0 && LiquidContainerRegistry.isFilledContainer(mInventory[0]) && LiquidContainerRegistry.containsLiquid(mInventory[0], mLiquid) && isValidFuel(LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0])) && LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0]).amount + mLiquid.amount <= getCapacity()) {
-    				boolean temp = true;
-    				ItemStack tContainer;
-    				if (null != (tContainer = GT_Utility.getContainerForFilledItem(mInventory[0]))) {
-    					if (mInventory[1] == null) {
-    						mInventory[1] = tContainer.copy();
-    					} else if (mInventory[1].isItemEqual(tContainer) && mInventory[1].stackSize + tContainer.stackSize <= tContainer.getMaxStackSize()) {
-    						mInventory[1].stackSize+=tContainer.stackSize;
-    					} else {
-    						temp = false;
-    					}
-    				}
-    				if (temp) {
-	    				mLiquid.amount+=LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0]).amount;
-	    				mBaseMetaTileEntity.decrStackSize(0, 1);
-    				}
-    			} else if (mInventory[0] != null && mLiquid.itemID == 0 && LiquidContainerRegistry.isFilledContainer(mInventory[0]) && isValidFuel(LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0])) && LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0]).amount <= getCapacity()) {
-    				boolean temp = true;
-    				ItemStack tContainer;
-    				if (null != (tContainer = GT_Utility.getContainerForFilledItem(mInventory[0]))) {
-    					if (mInventory[1] == null) {
-    						mInventory[1] = tContainer.copy();
-    					} else if (mInventory[1].isItemEqual(tContainer) && mInventory[1].stackSize + tContainer.stackSize <= tContainer.getMaxStackSize()) {
-    						mInventory[1].stackSize+=tContainer.stackSize;
-    					} else {
-    						temp = false;
-    					}
-    				}
-    				if (temp) {
-	    				LiquidStack tLiquid = LiquidContainerRegistry.getLiquidForFilledItem(mInventory[0]);
-	    				mLiquid.itemID=tLiquid.itemID;
-	    				mLiquid.itemMeta=tLiquid.itemMeta;
-	    				mLiquid.amount=tLiquid.amount;
-	    				mBaseMetaTileEntity.decrStackSize(0, 1);
-    				}
-    			}
-    		}
-			mBaseMetaTileEntity.mActive = (mBaseMetaTileEntity.getStored() >= maxEUOutput());
-    	}
-    }
-    
-    public boolean isValidFuel(LiquidStack aLiquid) {
-    	return getFuelValue(aLiquid)>0;
-    }
-    
-    /**
-     * @return EU per MB
-     */
-    public int getFuelValue(LiquidStack aLiquid) {
-    	if (aLiquid == null) return 0;
-    	LiquidStack tLiquid;
-    	for (int i = 0; i < GT_Recipe.sDieselFuels.size(); i++) {
-    		if ((tLiquid = LiquidContainerRegistry.getLiquidForFilledItem(GT_Recipe.sDieselFuels.get(i).mInput1)) != null) if (aLiquid.isLiquidEqual(tLiquid)) return GT_Recipe.sDieselFuels.get(i).mStartEU;
+        block28: {
+            ItemStack tOutput;
+            block31: {
+                block29: {
+                    block30: {
+                        if (this.mLiquid == null || this.mLiquid.itemID != 0 && this.mLiquid.amount == 0) {
+                            this.mLiquid = new LiquidStack(0, 0, 0);
+                        }
+                        if (this.mBaseMetaTileEntity.worldObj.isRemote || this.mBaseMetaTileEntity.mTickTimer % 10L != 0L) break block28;
+                        if (this.mLiquid.itemID > 0 && this.mLiquid.amount > 0) break block29;
+                        if (this.mBaseMetaTileEntity.getStoredEnergy() >= this.maxEUOutput()) break block30;
+                        this.mInventory[2] = null;
+                        break block31;
+                    }
+                    if (this.mInventory[2] != null) break block31;
+                    this.mInventory[2] = new ItemStack((Block)Block.fire, 1);
+                    break block31;
+                }
+                this.mInventory[2] = this.mLiquid.asItemStack();
+                while (this.mBaseMetaTileEntity.getStoredEnergy() < this.maxEUOutput() * 10 && this.mLiquid.amount > 0) {
+                    if (!this.mBaseMetaTileEntity.increaseStoredEU(this.getFuelValue(this.mLiquid), true)) continue;
+                    --this.mLiquid.amount;
+                }
+            }
+            if (this.mInventory[0] != null && this.mBaseMetaTileEntity.getStoredEnergy() <= 100) {
+                for (int i = 0; i < GT_Recipe.sDieselFuels.size(); ++i) {
+                    if (!this.mInventory[0].isItemEqual(((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mInput1)) continue;
+                    if (LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0]) != null) break;
+                    if (((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mOutput1 != null) {
+                        if (this.mInventory[1] == null) {
+                            if (!this.mBaseMetaTileEntity.increaseStoredEU(((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mStartEU * 1000, true)) break;
+                            this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                            this.mInventory[1] = ((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mOutput1.copy();
+                            break;
+                        }
+                        if (!this.mInventory[1].isItemEqual(((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mOutput1) || this.mInventory[1].stackSize + ((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mOutput1.stackSize > this.mInventory[1].getMaxStackSize() || !this.mBaseMetaTileEntity.increaseStoredEU(((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mStartEU * 1000, true)) break;
+                        this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                        this.mInventory[1].stackSize += ((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mOutput1.stackSize;
+                        break;
+                    }
+                    if (!this.mBaseMetaTileEntity.increaseStoredEU(((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mStartEU * 1000, true)) break;
+                    this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                    break;
+                }
+                int tValue = 0;
+                if (this.mInventory[0] != null && (this.mInventory[1] == null || this.mInventory[1].isItemEqual(GT_ModHandler.getIC2Item("fuelCan", 1)) && this.mInventory[1].stackSize < 64) && (tValue = GT_ModHandler.getFuelCanValue(this.mInventory[0])) > 0 && this.mBaseMetaTileEntity.increaseStoredEU(tValue * 5 / 4, true)) {
+                    this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                    if (this.mInventory[1] == null) {
+                        this.mInventory[1] = GT_ModHandler.getIC2Item("fuelCan", 1);
+                    } else {
+                        ++this.mInventory[1].stackSize;
+                    }
+                }
+                if (this.mInventory[0] != null && this.mLiquid.itemID != 0 && LiquidContainerRegistry.isFilledContainer((ItemStack)this.mInventory[0]) && LiquidContainerRegistry.containsLiquid((ItemStack)this.mInventory[0], (LiquidStack)this.mLiquid) && this.isValidFuel(LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0])) && LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0]).amount + this.mLiquid.amount <= this.getCapacity()) {
+                    boolean temp = true;
+                    ItemStack tContainer = GT_Utility.getContainerForFilledItem(this.mInventory[0]);
+                    if (null != tContainer) {
+                        if (this.mInventory[1] == null) {
+                            this.mInventory[1] = tContainer.copy();
+                        } else if (this.mInventory[1].isItemEqual(tContainer) && this.mInventory[1].stackSize + tContainer.stackSize <= tContainer.getMaxStackSize()) {
+                            this.mInventory[1].stackSize += tContainer.stackSize;
+                        } else {
+                            temp = false;
+                        }
+                    }
+                    if (temp) {
+                        this.mLiquid.amount += LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0]).amount;
+                        this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                    }
+                } else if (this.mInventory[0] != null && this.mLiquid.itemID == 0 && LiquidContainerRegistry.isFilledContainer((ItemStack)this.mInventory[0]) && this.isValidFuel(LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0])) && LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0]).amount <= this.getCapacity()) {
+                    boolean temp = true;
+                    ItemStack tContainer = GT_Utility.getContainerForFilledItem(this.mInventory[0]);
+                    if (null != tContainer) {
+                        if (this.mInventory[1] == null) {
+                            this.mInventory[1] = tContainer.copy();
+                        } else if (this.mInventory[1].isItemEqual(tContainer) && this.mInventory[1].stackSize + tContainer.stackSize <= tContainer.getMaxStackSize()) {
+                            this.mInventory[1].stackSize += tContainer.stackSize;
+                        } else {
+                            temp = false;
+                        }
+                    }
+                    if (temp) {
+                        LiquidStack tLiquid = LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)this.mInventory[0]);
+                        this.mLiquid.itemID = tLiquid.itemID;
+                        this.mLiquid.itemMeta = tLiquid.itemMeta;
+                        this.mLiquid.amount = tLiquid.amount;
+                        this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                    }
+                }
+            }
+            if (LiquidContainerRegistry.isEmptyContainer((ItemStack)this.mInventory[0]) && (tOutput = LiquidContainerRegistry.fillLiquidContainer((LiquidStack)this.mLiquid, (ItemStack)this.mInventory[0])) != null && (this.mInventory[1] == null || tOutput.isItemEqual(this.mInventory[1]) && this.mInventory[1].stackSize < tOutput.getMaxStackSize())) {
+                tOutput.stackSize = 1;
+                this.mLiquid.amount -= LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)tOutput).amount;
+                this.mBaseMetaTileEntity.decrStackSize(0, 1);
+                if (this.mInventory[1] == null) {
+                    this.mInventory[1] = tOutput;
+                } else {
+                    ++this.mInventory[1].stackSize;
+                }
+                if (this.mLiquid.amount <= 0) {
+                    this.mLiquid.itemID = 0;
+                    this.mLiquid.itemMeta = 0;
+                    this.mLiquid.amount = 0;
+                }
+            }
+            this.mBaseMetaTileEntity.mActive = this.mBaseMetaTileEntity.getStoredEnergy() >= this.maxEUOutput();
         }
-    	return 0;
     }
-    
-	@Override
-	public int getInvSideIndex(ForgeDirection aSide, int aFacing) {
-		if (aSide == ForgeDirection.UP || aSide == ForgeDirection.DOWN) return 0;
-		return 1;
-	}
-	
-	@Override
-	public int getInvSideLength(ForgeDirection aSide, int aFacing) {
-		return 1;
-	}
-	
-	@Override
-	public int getTextureIndex(int aSide, int aFacing) {
-    	if (aSide == 0)
-    		return 38;
-    	else if (aSide == 1)
-    		return 80;
-    	else
-    		return 36;
-	}
 
-	@Override
-	public String getMainInfo() {
-		if (mLiquid == null || mLiquid.itemID == 0 || mLiquid.asItemStack() == null) return "";
-		return "" + mLiquid.asItemStack().getDisplayName();
-	}
-	@Override
-	public String getSecondaryInfo() {
-		return "" + mLiquid.amount;
-	}
-	@Override
-	public String getTertiaryInfo() {
-		return "";
-	}
-	@Override
-	public boolean isGivingInformation() {
-		return true;
-	}
-	
-	@Override
-	public LiquidStack getLiquid() {
-		return mLiquid;
-	}
-	
-	@Override
-	public int getCapacity() {
-		return 10000;
-	}
+    public boolean isValidFuel(LiquidStack aLiquid) {
+        return this.getFuelValue(aLiquid) > 0;
+    }
 
-	@Override
-	public int fill(LiquidStack resource, boolean doFill) {
-		if (resource == null || resource.itemID <= 0 || !isValidFuel(resource))
-			return 0;
-		
-		if (mLiquid == null || mLiquid.itemID <= 0) {
-			if (resource.amount <= getCapacity()) {
-				if (doFill)
-					mLiquid = resource.copy();
-				return resource.amount;
-			} else {
-				if (doFill) {
-					mLiquid = resource.copy();
-					mLiquid.amount = getCapacity();
-					if (mBaseMetaTileEntity!=null)
-						LiquidEvent.fireEvent(new LiquidEvent.LiquidFillingEvent(mLiquid, mBaseMetaTileEntity.worldObj, mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord, this));
-				}
-				return getCapacity();
-			}
-		}
-		
-		if (!mLiquid.isLiquidEqual(resource))
-			return 0;
+    public int getFuelValue(LiquidStack aLiquid) {
+        if (aLiquid == null) {
+            return 0;
+        }
+        for (int i = 0; i < GT_Recipe.sDieselFuels.size(); ++i) {
+            LiquidStack tLiquid = LiquidContainerRegistry.getLiquidForFilledItem((ItemStack)((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mInput1);
+            if (tLiquid == null || !aLiquid.isLiquidEqual(tLiquid)) continue;
+            return ((GT_Recipe)GT_Recipe.sDieselFuels.get((int)i)).mStartEU;
+        }
+        return 0;
+    }
 
-		int space = getCapacity() - mLiquid.amount;
-		if (resource.amount <= space) {
-			if (doFill)
-				mLiquid.amount += resource.amount;
-			return resource.amount;
-		} else {
-			if (doFill)
-				mLiquid.amount = getCapacity();
-			return space;
-		}
+    @Override
+    public int getTextureIndex(int aSide, int aFacing, boolean aActive, boolean aRedstone) {
+        if (aSide == 0) {
+            return 38;
+        }
+        if (aSide == 1) {
+            return 80;
+        }
+        return 36;
+    }
 
-	}
-	@Override
-	public LiquidStack drain(int maxDrain, boolean doDrain) {
-		return null;
-	}
+    @Override
+    protected String getDescription() {
+        return "The second most effective Way of burning Fuel";
+    }
 
-	@Override
-	public int getTankPressure() {
-		return -100;
-	}
+    @Override
+    public LiquidStack getLiquid() {
+        return this.mLiquid;
+    }
+
+    @Override
+    public int getCapacity() {
+        return 10000;
+    }
+
+    @Override
+    public int fill(LiquidStack resource, boolean doFill) {
+        if (resource == null || resource.itemID <= 0 || !this.isValidFuel(resource)) {
+            return 0;
+        }
+        if (this.mLiquid == null || this.mLiquid.itemID <= 0) {
+            if (resource.amount <= this.getCapacity()) {
+                if (doFill) {
+                    this.mLiquid = resource.copy();
+                }
+                return resource.amount;
+            }
+            if (doFill) {
+                this.mLiquid = resource.copy();
+                this.mLiquid.amount = this.getCapacity();
+                if (this.mBaseMetaTileEntity != null) {
+                    LiquidEvent.fireEvent((LiquidEvent)new LiquidEvent.LiquidFillingEvent(this.mLiquid, this.mBaseMetaTileEntity.worldObj, this.mBaseMetaTileEntity.xCoord, this.mBaseMetaTileEntity.yCoord, this.mBaseMetaTileEntity.zCoord, (ILiquidTank)this));
+                }
+            }
+            return this.getCapacity();
+        }
+        if (!this.mLiquid.isLiquidEqual(resource)) {
+            return 0;
+        }
+        int space = this.getCapacity() - this.mLiquid.amount;
+        if (resource.amount <= space) {
+            if (doFill) {
+                this.mLiquid.amount += resource.amount;
+            }
+            return resource.amount;
+        }
+        if (doFill) {
+            this.mLiquid.amount = this.getCapacity();
+        }
+        return space;
+    }
+
+    @Override
+    public LiquidStack drain(int maxDrain, boolean doDrain) {
+        return null;
+    }
+
+    @Override
+    public int getTankPressure() {
+        return -100;
+    }
 }
+

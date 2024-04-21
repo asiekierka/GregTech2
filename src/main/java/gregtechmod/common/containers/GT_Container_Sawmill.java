@@ -1,71 +1,107 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  cpw.mods.fml.relauncher.Side
+ *  cpw.mods.fml.relauncher.SideOnly
+ *  net.minecraft.entity.player.InventoryPlayer
+ *  net.minecraft.inventory.Container
+ *  net.minecraft.inventory.ICrafting
+ *  net.minecraft.inventory.IInventory
+ *  net.minecraft.inventory.Slot
+ */
 package gregtechmod.common.containers;
 
-import gregtechmod.api.BaseMetaTileEntity;
-import gregtechmod.common.GT_Slot_Output;
-import gregtechmod.common.tileentities.GT_MetaTileEntity_Sawmill;
-
-import java.util.Iterator;
-
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.Slot;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtechmod.api.BaseMetaTileEntity;
+import gregtechmod.common.GT_Slot_Output;
+import gregtechmod.common.containers.GT_ContainerMetaTile_Machine;
+import gregtechmod.common.tileentities.GT_MetaTileEntity_Sawmill;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 
-public class GT_Container_Sawmill extends GT_ContainerMetaTile_Machine {
+import java.util.List;
 
-	public GT_Container_Sawmill(InventoryPlayer aInventoryPlayer, BaseMetaTileEntity aTileEntity, int aID) {
-		super(aInventoryPlayer, aTileEntity, aID);
-	}
+public class GT_Container_Sawmill
+extends GT_ContainerMetaTile_Machine {
+    public int mProgress;
+    public int mMaxProgress;
+    public int mProgressScale;
+    public int mWaterAmount;
+    public boolean mMachine = true;
 
-    public void addSlots(InventoryPlayer aInventoryPlayer) {
-        addSlotToContainer(new Slot(mTileEntity, 0,  34,  16));
-        addSlotToContainer(new Slot(mTileEntity, 1,  34,  34));
-        addSlotToContainer(new GT_Slot_Output(mTileEntity, 2,  86,  25));
-        addSlotToContainer(new GT_Slot_Output(mTileEntity, 3, 104,  25));
-        addSlotToContainer(new GT_Slot_Output(mTileEntity, 4, 122,  25));
+    public GT_Container_Sawmill(InventoryPlayer aInventoryPlayer, BaseMetaTileEntity aTileEntity, int aID) {
+        super(aInventoryPlayer, aTileEntity, aID);
     }
 
-    public int mProgress, mMaxProgress, mProgressScale, mWaterAmount;
-    public boolean mMachine = true;
-    
-    public void updateCraftingResults() {
-        super.updateCraftingResults();
-    	if (mTileEntity.worldObj.isRemote) return;
-    	mMachine = ((GT_MetaTileEntity_Sawmill)mTileEntity.mMetaTileEntity).mMachine;
-    	mWaterAmount = ((GT_MetaTileEntity_Sawmill)mTileEntity.mMetaTileEntity).mWaterAmount;
-    	mProgress = ((GT_MetaTileEntity_Sawmill)mTileEntity.mMetaTileEntity).getProgresstime();
-    	mMaxProgress = ((GT_MetaTileEntity_Sawmill)mTileEntity.mMetaTileEntity).maxProgresstime();
-    	mProgressScale = Math.max(0, Math.min(20, (mProgress>0?1:0) + (mProgress * 20) / (mMaxProgress<1?1:mMaxProgress)));
-    	
-        Iterator var2 = this.crafters.iterator();
-        while (var2.hasNext()) {
-            ICrafting var1 = (ICrafting)var2.next();
-            var1.sendProgressBarUpdate(this, 10, mProgress);
-            var1.sendProgressBarUpdate(this, 11, mMaxProgress);
-            var1.sendProgressBarUpdate(this, 12, mProgressScale);
-            var1.sendProgressBarUpdate(this, 13, mMachine?1:0);
-            var1.sendProgressBarUpdate(this, 14, mWaterAmount);
+    @Override
+    public void addSlots(InventoryPlayer aInventoryPlayer) {
+        this.addSlotToContainer(new Slot((IInventory)this.mTileEntity, 0, 34, 16));
+        this.addSlotToContainer(new Slot((IInventory)this.mTileEntity, 1, 34, 34));
+        this.addSlotToContainer(new GT_Slot_Output((IInventory)this.mTileEntity, 2, 86, 25));
+        this.addSlotToContainer(new GT_Slot_Output((IInventory)this.mTileEntity, 3, 104, 25));
+        this.addSlotToContainer(new GT_Slot_Output((IInventory)this.mTileEntity, 4, 122, 25));
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (this.mTileEntity.worldObj.isRemote) {
+            return;
+        }
+        this.mMachine = ((GT_MetaTileEntity_Sawmill)this.mTileEntity.mMetaTileEntity).mMachine;
+        this.mWaterAmount = ((GT_MetaTileEntity_Sawmill)this.mTileEntity.mMetaTileEntity).mWaterAmount;
+        this.mProgress = ((GT_MetaTileEntity_Sawmill)this.mTileEntity.mMetaTileEntity).getProgresstime();
+        this.mMaxProgress = ((GT_MetaTileEntity_Sawmill)this.mTileEntity.mMetaTileEntity).maxProgresstime();
+        this.mProgressScale = Math.max(0, Math.min(20, (this.mProgress > 0 ? 1 : 0) + this.mProgress * 20 / (this.mMaxProgress < 1 ? 1 : this.mMaxProgress)));
+        for (ICrafting var1 : (List<ICrafting>) this.crafters) {
+            var1.sendProgressBarUpdate((Container)this, 100, this.mProgress);
+            var1.sendProgressBarUpdate((Container)this, 101, this.mMaxProgress);
+            var1.sendProgressBarUpdate((Container)this, 102, this.mProgressScale);
+            var1.sendProgressBarUpdate((Container)this, 103, this.mMachine ? 1 : 0);
+            var1.sendProgressBarUpdate((Container)this, 104, this.mWaterAmount);
         }
     }
-    
-    @SideOnly(Side.CLIENT)
+
+    @Override
+    @SideOnly(value=Side.CLIENT)
     public void updateProgressBar(int par1, int par2) {
-    	super.updateProgressBar(par1, par2);
-    	switch (par1) {
-    	case 10: mProgress = par2; break;
-    	case 11: mMaxProgress = par2; break;
-    	case 12: mProgressScale = par2; break;
-    	case 13: mMachine = (par2!=0); break;
-    	case 14: mWaterAmount = par2; break;
-    	}
-    }
-    
-    public int getSlotCount() {
-    	return 5;
+        super.updateProgressBar(par1, par2);
+        switch (par1) {
+            case 100: {
+                this.mProgress = par2;
+                break;
+            }
+            case 101: {
+                this.mMaxProgress = par2;
+                break;
+            }
+            case 102: {
+                this.mProgressScale = par2;
+                break;
+            }
+            case 103: {
+                this.mMachine = par2 != 0;
+                break;
+            }
+            case 104: {
+                this.mWaterAmount = par2;
+            }
+        }
     }
 
+    @Override
+    public int getSlotCount() {
+        return 5;
+    }
+
+    @Override
     public int getShiftClickSlotCount() {
-    	return 2;
+        return 2;
     }
 }
+

@@ -40,15 +40,15 @@ public abstract class MetaTileEntity implements ILiquidTank {
 	 * 	}
 	 */
 	public MetaTileEntity(int aID, String aBasicName, String aRegionalName) {
-		if (BaseMetaTileEntity.mMetaTileList[aID] == null) {
-			BaseMetaTileEntity.mMetaTileList[aID] = this;
+		if (GregTech_API.mMetaTileList[aID] == null) {
+			GregTech_API.mMetaTileList[aID] = this;
 		} else {
-			throw new IllegalArgumentException("Metamachine-Slot Nr. " + aID + " is already occupied!");
+			throw new IllegalArgumentException("MetaMachine-Slot Nr. " + aID + " is already occupied!");
 		}
 		mID = aID;
-		mName = aBasicName;
+		mName = aBasicName.replaceAll(" ", "_");
 		mRegionalName = aRegionalName;
-		mBaseMetaTileEntity = new BaseMetaTileEntity();
+		mBaseMetaTileEntity = GregTech_API.constructBaseMetaTileEntity();
 		mBaseMetaTileEntity.mMetaTileEntity = this;
 		GT_LanguageManager.addStringLocalization("tile.BlockMetaID_Machine." + mName + ".name", mRegionalName);
 	}
@@ -75,6 +75,12 @@ public abstract class MetaTileEntity implements ILiquidTank {
 	public abstract void loadNBTData(NBTTagCompound aNBT);
 	
 	/**
+	 * Adds the NBT-Information to the ItemStack, when being wrenched
+	 * Used to store Machine specific Upgrade Data.
+	 */
+	public void setItemNBT(NBTTagCompound aNBT) {}
+	
+	/**
 	 * From ISidedInventory
 	 */
 	public abstract int getInvSideIndex(ForgeDirection aSide, int aFacing);
@@ -92,8 +98,15 @@ public abstract class MetaTileEntity implements ILiquidTank {
 	/**
 	 * Index of the Texture
 	 */
-	public abstract int getTextureIndex(int aSide, int aFacing);
+	public abstract int getTextureIndex(int aSide, int aFacing, boolean aActive, boolean aRedstone);
+
+	/**
+	 * get a small Description
+	 */
+	protected abstract String getDescription();
 	
+	public void inValidate() {}
+	public void onExplosion() {}
 	public void onFirstTick() {}
 	public void onPreTick() {}
 	public void onPostTick() {}
@@ -101,7 +114,32 @@ public abstract class MetaTileEntity implements ILiquidTank {
 	public void onOpenGUI() {}
 	public void onCloseGUI() {}
 	public void onRightclick(EntityPlayer aPlayer) {}
-
+	public void onLeftclick(EntityPlayer aPlayer) {}
+	public void onValueUpdate(short aValue) {}
+	public short getUpdateData() {return 0;}
+	
+	/**
+	 * Only called Client Side
+	 */
+    public void doSound(int aIndex, double aX, double aY, double aZ) {}
+    public void startSoundLoop(int aIndex, double aX, double aY, double aZ) {}
+    public void stopSoundLoop(int aIndex, double aX, double aY, double aZ) {}
+	
+    /**
+     * Send the Event for the Sound Triggers, only usable Server Side
+     */
+    public void sendSound(int aIndex) {
+    	mBaseMetaTileEntity.worldObj.addBlockEvent(mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord, mBaseMetaTileEntity.worldObj.getBlockId(mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord), 4, aIndex);
+    }
+    
+    public void sendLoopStart(int aIndex) {
+    	mBaseMetaTileEntity.worldObj.addBlockEvent(mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord, mBaseMetaTileEntity.worldObj.getBlockId(mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord), 5, aIndex);
+    }
+    
+    public void sendLoopEnd(int aIndex) {
+    	mBaseMetaTileEntity.worldObj.addBlockEvent(mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord, mBaseMetaTileEntity.worldObj.getBlockId(mBaseMetaTileEntity.xCoord, mBaseMetaTileEntity.yCoord, mBaseMetaTileEntity.zCoord), 6, aIndex);
+    }
+    
     /**
      * @return true if this Device emits Energy
      */
@@ -126,7 +164,13 @@ public abstract class MetaTileEntity implements ILiquidTank {
      * @return the amount of EU/t, which can be outputted by this Device.
      */
     public int maxEUOutput() {return 0;}
-
+    
+    /**
+     * @return the amount of E-net Impulses of the maxEUOutput size, which can be outputted by this Device.
+     * Default is 1 Pulse, this shouldn't be set to smaller Values than 1, as it won't output anything in that Case!
+     */
+    public int maxEUPulses()  {return 1;}
+    
     /**
      * @return true if that Side is an Output.
      */
@@ -154,12 +198,45 @@ public abstract class MetaTileEntity implements ILiquidTank {
     public boolean isValidSlot(int aIndex) {return true;}
     
     /**
+     * @return if aIndex can be set to Zero stacksize, when being removed.
+     */
+    public boolean setStackToZeroInsteadOfNull(int aIndex) {
+    	return false;
+    }
+    
+    /**
      * This is used to set the internal Energy to the given Parameter. I use this for the IDSU.
      */
-	public void setEnergyVar(int aEU) {
+	public void setEUVar(int aEU) {
 		mBaseMetaTileEntity.mStoredEnergy = aEU;
 	}
 	
+    /**
+     * This is used to get the internal Energy. I use this for the IDSU.
+     */
+	public int getEUVar() {
+		return mBaseMetaTileEntity.mStoredEnergy;
+	}
+
+    /**
+     * This is used to set the internal Energy to the given Parameter. I use this for the IDSU.
+     */
+	public void setMJVar(int aMJ) {
+		mBaseMetaTileEntity.mStoredMJ = aMJ;
+	}
+	
+    /**
+     * This is used to get the internal Energy. I use this for the IDSU.
+     */
+	public int getMJVar() {
+		return mBaseMetaTileEntity.mStoredMJ;
+	}
+
+    /**
+     * @return the amount of EU, which can be stored in this Device. Default is 0 EU.
+     */
+    public int maxMJStore()  {return 0;}
+    
 	/**
 	 * @return the amount of EU, which this Device stores before starting to emit Energy.
 	 */
@@ -168,24 +245,17 @@ public abstract class MetaTileEntity implements ILiquidTank {
 	}
 	
     /**
-     * This is used to get the internal Energy. I use this for the IDSU.
-     */
-	public int getEnergyVar() {
-		return mBaseMetaTileEntity.mStoredEnergy;
-	}
-
-    /**
      * Determines the Tier of the Machine, used for de-charging Tools.
      */
     public int getInputTier() {
-    	return mBaseMetaTileEntity.getTier(maxEUInput());
+    	return mBaseMetaTileEntity.getTier(mBaseMetaTileEntity.getMaxSafeInput());
     }
     
     /**
      * Determines the Tier of the Machine, used for charging Tools.
      */
     public int getOutputTier() {
-    	return mBaseMetaTileEntity.getTier(maxEUOutput());
+    	return mBaseMetaTileEntity.getTier(mBaseMetaTileEntity.getOutput());
     }
     
     /**
@@ -224,12 +294,19 @@ public abstract class MetaTileEntity implements ILiquidTank {
     }
 
     /**
-     * returns if this Object is animated
+     * gets if Protected from other Players Wrenches or not.
      */
-    public boolean hasAnimation() {
+    public boolean ownerWrench() {
+    	return ownerControl();
+    }
+    
+    /**
+     * gets if it has hardness -1 and so is only breakable via Wrench (just to prevent accidently breaking the Blocks)
+     */
+    public boolean unbreakable() {
     	return false;
     }
-
+    
     /**
      * returns the DebugLog
      */
@@ -251,4 +328,11 @@ public abstract class MetaTileEntity implements ILiquidTank {
 	public void onMachineBlockUpdate() {}
 	public void receiveClientEvent(int aEventID, int aValue) {}
 	public boolean isSimpleMachine() {return false;}
+	public boolean isDigitalChest() {return false;}
+	public ItemStack[] getStoredItemData() {return null;}
+	public void setItemCount(int aCount) {}
+	public int getMaxItemCount() {return 0;}
+	public boolean isOverclockerUpgradable() {return false;}
+	public boolean isTransformerUpgradable() {return false;}
+	public boolean isBatteryUpgradable() {return false;}
 }

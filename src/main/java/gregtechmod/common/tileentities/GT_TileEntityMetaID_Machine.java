@@ -1,3 +1,29 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  ic2.api.Direction
+ *  ic2.api.ElectricItem
+ *  ic2.api.IElectricItem
+ *  ic2.api.IEnergyStorage
+ *  ic2.api.IWrenchable
+ *  ic2.api.energy.EnergyNet
+ *  ic2.api.energy.tile.IEnergySink
+ *  ic2.api.energy.tile.IEnergySource
+ *  ic2.api.network.INetworkDataProvider
+ *  ic2.api.network.INetworkUpdateListener
+ *  ic2.api.network.NetworkHelper
+ *  net.minecraft.block.Block
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.item.ItemStack
+ *  net.minecraft.nbt.NBTBase
+ *  net.minecraft.nbt.NBTTagCompound
+ *  net.minecraft.nbt.NBTTagList
+ *  net.minecraft.tileentity.TileEntity
+ *  net.minecraft.world.World
+ *  net.minecraftforge.common.ForgeDirection
+ *  net.minecraftforge.common.ISidedInventory
+ */
 package gregtechmod.common.tileentities;
 
 import gregtechmod.GT_Mod;
@@ -14,645 +40,665 @@ import ic2.api.energy.tile.IEnergySource;
 import ic2.api.network.INetworkDataProvider;
 import ic2.api.network.INetworkUpdateListener;
 import ic2.api.network.NetworkHelper;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 
-public class GT_TileEntityMetaID_Machine extends TileEntity implements ISidedInventory, IEnergySink, IEnergySource, IWrenchable, IEnergyStorage, IGregTechDeviceInformation, INetworkDataProvider, INetworkUpdateListener {
-	
-    /**
-     * @return true if this Device emits Energy
-     */
-    public boolean isEnetOutput() {return false;}
-    
-    /**
-     * @return true if this Device consumes Energy
-     */
-    public boolean isEnetInput()  {return false;}
+public class GT_TileEntityMetaID_Machine
+extends TileEntity
+implements ISidedInventory,
+IEnergySink,
+IEnergySource,
+IWrenchable,
+IEnergyStorage,
+IGregTechDeviceInformation,
+INetworkDataProvider,
+INetworkUpdateListener {
+    public ItemStack[] mInventory = new ItemStack[this.getInventorySlotCount()];
+    public boolean mIsAddedToEnet = false;
+    public boolean mFirstTick = true;
+    public boolean mNeedsUpdate = true;
+    public boolean mActive;
+    public boolean oActive;
+    public boolean mRedstone;
+    public boolean oRedstone;
+    public boolean mReleaseEnergy = false;
+    private int mStoredEnergy = 0;
+    private int oOutput;
+    private int oX = 0;
+    private int oY = 0;
+    private int oZ = 0;
+    private short mFacing = (short)-1;
+    private short oFacing;
+    public String mOwnerName = "";
+    public long mTickTimer = 0L;
 
-    /**
-     * @return the amount of EU, which can be stored in this Device. Default is 0 EU.
-     */
-    public int maxEUStore()  {return 0;}
+    public boolean isEnetOutput() {
+        return false;
+    }
 
-    /**
-     * @return the amount of EU/t, which can be accepted by this Device before it explodes. Default is 0 EU/t.
-     */
-    public int maxEUInput()  {return 0;}
-    
-    /**
-     * @return the amount of EU/t, which can be outputted by this Device. Default is 0 EU/t.
-     */
-    public int maxEUOutput() {return 0;}
+    public boolean isEnetInput() {
+        return false;
+    }
 
-    /**
-     * @param 0 = -X; 1 = +X; 2 = -Y; 3 = +Y; 4 = -Z; 5 = +Z
-     * @return true if that Direction is an Output.
-     */
-    public boolean isOutputFacing(short aDirection) {return false;}
-    
-    /**
-     * @param 0 = -X; 1 = +X; 2 = -Y; 3 = +Y; 4 = -Z; 5 = +Z
-     * @return true if that Direction is an Input.
-     */
-    public boolean isInputFacing(short aDirection) {return false;}
-    
-    /**
-     * @param aFacing
-     * @return if aFacing would be a valid Facing for this Device
-     */
-    public boolean isFacingValid(int aFacing) {return false;}
-    
-    /**
-     * Is called by invalidate right before it removes the TileEntity from the E-net
-     */
-    public void onRemoval() {}
-    
-    /**
-     * @return Amount of InventorySlots for this Device
-     */
-    public int getInventorySlotCount() {return 0;}
-    
-    /**
-     * Use this to add custom Data instead of using writeToNBT
-     */
-    public void storeAdditionalData(NBTTagCompound aNBT) {}
+    public int maxEUStore() {
+        return 0;
+    }
 
-    /**
-     * Use this to read custom Data instead of using readFromNBT
-     */
-    public void getAdditionalData(NBTTagCompound aNBT) {}
+    public int maxEUInput() {
+        return 0;
+    }
 
-    /**
-     * Use this instead of updateEntity (gets called before all the E-net-Stuff)
-     */
-    public void onPreTickUpdate() {}
-    
-    /**
-     * Use this instead of updateEntity (gets called after all the E-net-Stuff)
-     */
-    public void onPostTickUpdate() {}
-    
-    /**
-     * Use this instead of updateEntity (gets called once before anything)
-     */
-    public void onFirstTickUpdate() {}
-    
-    /**
-     * @return true if the Machine can be accessed
-     */
-    public boolean isAccessible(EntityPlayer aPlayer) {return false;}
-    
-    /**
-     * @return if aIndex is a valid Slot. false for things like HoloSlots.
-     */
-    public boolean isValidSlot(int aIndex) {return true;}
-    
-    /**
-     * This is used to set the internal Energy to the given Parameter. I use this for the IDSU.
-     */
-	public void setEnergyVar(int aEU) {
-		mStoredEnergy = aEU;
-	}
+    public int maxEUOutput() {
+        return 0;
+    }
 
-    /**
-     * This is used to get the internal Energy. I use this for the IDSU.
-     */
-	public int getEnergyVar() {
-		return mStoredEnergy;
-	}
-    
-    /**
-     * Determines the Tier of the Machine, used for charging Tools.
-     */
+    public boolean isOutputFacing(short aDirection) {
+        return false;
+    }
+
+    public boolean isInputFacing(short aDirection) {
+        return false;
+    }
+
+    public boolean isFacingValid(int aFacing) {
+        return false;
+    }
+
+    public void onRemoval() {
+    }
+
+    public int getInventorySlotCount() {
+        return 0;
+    }
+
+    public void storeAdditionalData(NBTTagCompound aNBT) {
+    }
+
+    public void getAdditionalData(NBTTagCompound aNBT) {
+    }
+
+    public void onPreTickUpdate() {
+    }
+
+    public void onPostTickUpdate() {
+    }
+
+    public void onFirstTickUpdate() {
+    }
+
+    public boolean isAccessible(EntityPlayer aPlayer) {
+        return false;
+    }
+
+    public boolean isValidSlot(int aIndex) {
+        return true;
+    }
+
+    public void setEnergyVar(int aEU) {
+        this.mStoredEnergy = aEU;
+    }
+
+    public int getEnergyVar() {
+        return this.mStoredEnergy;
+    }
+
     public int getTier() {
-    	return getTier(Math.max(maxEUOutput(), maxEUInput()));
+        return this.getTier(Math.max(this.maxEUOutput(), this.maxEUInput()));
     }
-    
+
     public int getTier(int aValue) {
-    	int tMaxEU = aValue;
-    	return tMaxEU<=32?1:tMaxEU<=128?2:tMaxEU<=512?3:tMaxEU<=2048?4:tMaxEU<=8192?5:6;
+        int tMaxEU = aValue;
+        return tMaxEU <= 32 ? 1 : (tMaxEU <= 128 ? 2 : (tMaxEU <= 512 ? 3 : (tMaxEU <= 2048 ? 4 : (tMaxEU <= 8192 ? 5 : 6))));
     }
-    
+
     public int getChargeTier() {
-    	return getTier();
+        return this.getTier();
     }
-    
-    /**
-     * gets the first RechargerSlot
-     */
+
     public int rechargerSlotStartIndex() {
-    	return 0;
+        return 0;
     }
-    
-    /**
-     * gets the amount of RechargerSlots
-     */
+
     public int rechargerSlotCount() {
-    	return 0;
+        return 0;
     }
-    
-    /**
-     * gets the first DechargerSlot
-     */
+
     public int dechargerSlotStartIndex() {
-    	return 0;
+        return 0;
     }
 
-    /**
-     * gets the amount of DechargerSlots
-     */
     public int dechargerSlotCount() {
-    	return 0;
+        return 0;
     }
-    
-    /**
-     * gets if Protected from other Players or not
-     */
+
     public boolean ownerControl() {
-    	return false;
+        return false;
     }
 
-    /**
-     * returns if this Object is animated
-     */
     public boolean hasAnimation() {
-    	return false;
+        return false;
     }
 
-    /**
-     * returns the DebugLog
-     */
-	public ArrayList<String> getSpecialDebugInfo(EntityPlayer aPlayer, int aLogLevel, ArrayList<String> aList) {
-		return aList;
-	}
-	
-	@Override
-	public String getMainInfo() {
-		return "";
-	}
-
-	@Override
-	public String getSecondaryInfo() {
-		return "";
-	}
-
-	@Override
-	public String getTertiaryInfo() {
-		return "";
-	}
-
-	@Override
-	public boolean isGivingInformation() {
-		return false;
-	}
-	
-	@Override public int getStartInventorySide(ForgeDirection aSide) {return 0;}
-	@Override public int getSizeInventorySide(ForgeDirection aSide) {return getInventorySlotCount();}
-    @Override public String getInvName() {return "Defaultmachine";}
-    @Override public void openChest() {}
-    @Override public void closeChest() {}
-    
-    // Basecode, which should not be touched in extending Devices
-    
-	public ItemStack[] mInventory;
-	
-	public boolean mIsAddedToEnet, mFirstTick, mNeedsUpdate = true, mActive, oActive, mRedstone, oRedstone;
-	private int mStoredEnergy, oOutput;
-	private short mFacing, oFacing;
-	public String mOwnerName = "";
-	
-	public long mTickTimer;
-	
-    public GT_TileEntityMetaID_Machine() {
-        mInventory = new ItemStack[getInventorySlotCount()];
-        mIsAddedToEnet = false;
-        mFirstTick = true;
-        mStoredEnergy = 0;
-        mTickTimer = 0;
-        mFacing = -1;
+    public ArrayList getSpecialDebugInfo(EntityPlayer aPlayer, int aLogLevel, ArrayList aList) {
+        return aList;
     }
 
-
-    
-    @Override
-	public void updateEntity() {
-    	if (isInvalid()) return;
-    	
-    	mTickTimer++;
-    	
-    	if (mFirstTick) {
-    		if (mFacing == -1) mFacing = 0;
-    		if (mTickTimer>19) {
-	    		mFirstTick = false;
-	            onFirstTickUpdate();
-	            NetworkHelper.updateTileEntityField(this, "mOwnerName");
-	            mNeedsUpdate = true;
-    		} else return;
-    	}
-    	
-    	if (mTickTimer % 6000 == 0) mNeedsUpdate = true;
-    	
-    	onPreTickUpdate();
-	    if (worldObj.isRemote) {
-	    	if ((mNeedsUpdate || hasAnimation()) && (GT_Mod.instance.mAnimations || mTickTimer<250)) {
-			    worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
-			    mNeedsUpdate = false;
-	    	}
-	    } else {
-		    if (mNeedsUpdate) {
-	    		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 0, mFacing);
-		    	worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 1, mActive?1:0);
-		    	worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 2, mRedstone?1:0);
-			    mNeedsUpdate = false;
-	    	}
-	    	
-	    	if (mActive != oActive) {
-	    		oActive = mActive;
-			    mNeedsUpdate = true;
-	    	}
-
-	    	if (mRedstone != oRedstone) {
-		    	worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
-	    		oRedstone = mRedstone;
-			    mNeedsUpdate = true;
-	    	}
-	    	
-	    	if (mTickTimer > 30 && (isEnetOutput()||isEnetInput()) && !mIsAddedToEnet) {
-	    		mIsAddedToEnet = GT_ModHandler.addTileToEnet(this);
-	    	}
-	    	
-		    if (mFacing != oFacing) {
-		    	oFacing = mFacing;
-		    	if (mIsAddedToEnet) GT_ModHandler.removeTileFromEnet(this);
-		    	mIsAddedToEnet = false;
-		    }
-
-		    if (getOutput() != oOutput) {
-		    	oOutput = getOutput();
-		    	if (mIsAddedToEnet) GT_ModHandler.removeTileFromEnet(this);
-		    	mIsAddedToEnet = false;
-		    	mNeedsUpdate = true;
-		    }
-		    
-	        if (mIsAddedToEnet && isEnetOutput() && getEnergyVar() >= maxEUOutput() && maxEUOutput() > 0) {
-	            try {
-	            	EnergyNet tEnergyNet = EnergyNet.getForWorld(worldObj);
-	            	if (tEnergyNet != null)
-	            		setStoredEnergy(getEnergyVar() + tEnergyNet.emitEnergyFrom(this, maxEUOutput()) - maxEUOutput());
-	            } catch(Exception e) {
-	            	
-	            }
-	        }
-	        
-	        for (int j = 0; j < getChargeTier(); j++) {
-		        for (int i = dechargerSlotStartIndex(); i < dechargerSlotCount()+dechargerSlotStartIndex(); i++) {
-			        if (mInventory[i] != null && demandsEnergy()>0 && mInventory[i].getItem() instanceof IElectricItem) {
-			            if (((IElectricItem)mInventory[i].getItem()).canProvideEnergy())
-			                increaseStoredEnergy(ElectricItem.discharge(mInventory[i], maxEUStore() - getEnergyVar(), getChargeTier(), false, false));
-			        }
-		        }
-		        
-		        for (int i = rechargerSlotStartIndex(); i < rechargerSlotCount()+rechargerSlotStartIndex(); i++) {
-			        if (getEnergyVar() > 0 && mInventory[i] != null && mInventory[i].getItem() instanceof IElectricItem)
-			        	decreaseStoredEnergy(ElectricItem.charge(mInventory[i], getEnergyVar(), getChargeTier(), false, false), true);
-		        }
-	        }
-	    }
-    	onPostTickUpdate();
-    	onInventoryChanged();
+    public void onLeftclick(EntityPlayer aPlayer) {
     }
 
     @Override
-	public void receiveClientEvent(int aEventID, int aValue) {
-		super.receiveClientEvent(aEventID, aValue);
-		if (worldObj.isRemote) {
-			switch(aEventID) {
-			case 0:
-				mFacing = (short)aValue;
-				mNeedsUpdate = true;
-				break;
-			case 1:
-		    	mActive = (aValue!=0);
-				mNeedsUpdate = true;
-		    	break;
-			case 2:
-		    	mRedstone = (aValue!=0);
-				mNeedsUpdate = true;
-		    	break;
-			}
-		}
-	}
-    
+    public String getMainInfo() {
+        return "";
+    }
+
     @Override
+    public String getSecondaryInfo() {
+        return "";
+    }
+
+    @Override
+    public String getTertiaryInfo() {
+        return "";
+    }
+
+    @Override
+    public boolean isGivingInformation() {
+        return false;
+    }
+
+    public int getStartInventorySide(ForgeDirection aSide) {
+        return 0;
+    }
+
+    public int getSizeInventorySide(ForgeDirection aSide) {
+        return this.getInventorySlotCount();
+    }
+
+    public String getInvName() {
+        return "Defaultmachine";
+    }
+
+    public void openChest() {
+    }
+
+    public void closeChest() {
+    }
+
+    public void updateEntity() {
+        if (this.isInvalid()) {
+            return;
+        }
+        try {
+            ++this.mTickTimer;
+            if (this.mFirstTick) {
+                if (this.mFacing == -1) {
+                    this.mFacing = 0;
+                }
+                if (this.mTickTimer > 19L) {
+                    this.mFirstTick = false;
+                    this.onFirstTickUpdate();
+                    try {
+                        NetworkHelper.updateTileEntityField((TileEntity)this, (String)"mOwnerName");
+                    }
+                    catch (Throwable e) {
+                        // empty catch block
+                    }
+                    this.mNeedsUpdate = true;
+                } else {
+                    return;
+                }
+            }
+            if (this.mTickTimer % 6000L == 0L) {
+                this.mNeedsUpdate = true;
+            }
+            this.onPreTickUpdate();
+            if (this.worldObj.isRemote) {
+                if ((this.mNeedsUpdate || this.hasAnimation()) && (GT_Mod.instance.mAnimations || this.mTickTimer < 250L)) {
+                    this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
+                    this.mNeedsUpdate = false;
+                }
+            } else {
+                if (this.mNeedsUpdate) {
+                    this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 0, (int)this.mFacing);
+                    this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 1, this.mActive ? 1 : 0);
+                    this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 2, this.mRedstone ? 1 : 0);
+                    this.mNeedsUpdate = false;
+                }
+                if (this.mActive != this.oActive) {
+                    this.oActive = this.mActive;
+                    this.mNeedsUpdate = true;
+                }
+                if (this.mRedstone != this.oRedstone) {
+                    this.worldObj.notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord));
+                    this.oRedstone = this.mRedstone;
+                    this.mNeedsUpdate = true;
+                }
+                if (this.mTickTimer > 30L && (this.isEnetOutput() || this.isEnetInput()) && !this.mIsAddedToEnet) {
+                    this.mIsAddedToEnet = GT_ModHandler.addTileToEnet(this);
+                }
+                if (this.xCoord != this.oX || this.yCoord != this.oY || this.zCoord != this.oZ) {
+                    this.oX = this.xCoord;
+                    this.oY = this.yCoord;
+                    this.oZ = this.zCoord;
+                    if (this.mIsAddedToEnet) {
+                        GT_ModHandler.removeTileFromEnet(this);
+                    }
+                    this.mIsAddedToEnet = false;
+                    this.mNeedsUpdate = true;
+                }
+                if (this.mFacing != this.oFacing) {
+                    this.oFacing = this.mFacing;
+                    if (this.mIsAddedToEnet) {
+                        GT_ModHandler.removeTileFromEnet(this);
+                    }
+                    this.mIsAddedToEnet = false;
+                }
+                if (this.getOutput() != this.oOutput) {
+                    this.oOutput = this.getOutput();
+                    if (this.mIsAddedToEnet) {
+                        GT_ModHandler.removeTileFromEnet(this);
+                    }
+                    this.mIsAddedToEnet = false;
+                    this.mNeedsUpdate = true;
+                }
+                if (this.mIsAddedToEnet && GT_Mod.instance.mMachineFireExplosions && this.worldObj.rand.nextInt(1000) == 0) {
+                    switch (this.worldObj.rand.nextInt(6)) {
+                        case 0: {
+                            if (this.worldObj.getBlockId(this.xCoord + 1, this.yCoord, this.zCoord) != Block.fire.blockID) break;
+                            this.doEnergyExplosion();
+                            break;
+                        }
+                        case 1: {
+                            if (this.worldObj.getBlockId(this.xCoord - 1, this.yCoord, this.zCoord) != Block.fire.blockID) break;
+                            this.doEnergyExplosion();
+                            break;
+                        }
+                        case 2: {
+                            if (this.worldObj.getBlockId(this.xCoord, this.yCoord + 1, this.zCoord) != Block.fire.blockID) break;
+                            this.doEnergyExplosion();
+                            break;
+                        }
+                        case 3: {
+                            if (this.worldObj.getBlockId(this.xCoord, this.yCoord - 1, this.zCoord) != Block.fire.blockID) break;
+                            this.doEnergyExplosion();
+                            break;
+                        }
+                        case 4: {
+                            if (this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord + 1) != Block.fire.blockID) break;
+                            this.doEnergyExplosion();
+                            break;
+                        }
+                        case 5: {
+                            if (this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord - 1) != Block.fire.blockID) break;
+                            this.doEnergyExplosion();
+                        }
+                    }
+                }
+                if (this.mIsAddedToEnet && this.isEnetOutput() && this.getEnergyVar() >= this.maxEUOutput() && this.maxEUOutput() > 0) {
+                    try {
+                        EnergyNet tEnergyNet = EnergyNet.getForWorld((World)this.worldObj);
+                        if (tEnergyNet != null) {
+                            this.setStoredEnergy(this.getEnergyVar() + tEnergyNet.emitEnergyFrom((IEnergySource)this, this.maxEUOutput()) - this.maxEUOutput());
+                        }
+                    }
+                    catch (Exception e) {
+                        // empty catch block
+                    }
+                }
+                for (int j = 0; j < this.getChargeTier(); ++j) {
+                    int i;
+                    for (i = this.dechargerSlotStartIndex(); i < this.dechargerSlotCount() + this.dechargerSlotStartIndex(); ++i) {
+                        if (this.mInventory[i] == null || this.demandsEnergy() <= 0 || !(this.mInventory[i].getItem() instanceof IElectricItem) || !((IElectricItem)this.mInventory[i].getItem()).canProvideEnergy()) continue;
+                        this.increaseStoredEnergy(ElectricItem.discharge((ItemStack)this.mInventory[i], (int)(this.maxEUStore() - this.getEnergyVar()), (int)this.getChargeTier(), (boolean)false, (boolean)false));
+                    }
+                    for (i = this.rechargerSlotStartIndex(); i < this.rechargerSlotCount() + this.rechargerSlotStartIndex(); ++i) {
+                        if (this.getEnergyVar() <= 0 || this.mInventory[i] == null || !(this.mInventory[i].getItem() instanceof IElectricItem)) continue;
+                        this.decreaseStoredEnergy(ElectricItem.charge((ItemStack)this.mInventory[i], (int)this.getEnergyVar(), (int)this.getChargeTier(), (boolean)false, (boolean)false), true);
+                    }
+                }
+            }
+            this.onPostTickUpdate();
+            this.onInventoryChanged();
+        }
+        catch (Throwable e) {
+            System.err.println("Encountered Exception while ticking TileEntity, the Game should've crashed by now, but I prevented that. Please report immidietly to GregTech Intergalactical!!!");
+            e.printStackTrace();
+        }
+    }
+
+    public void receiveClientEvent(int aEventID, int aValue) {
+        super.receiveClientEvent(aEventID, aValue);
+        if (this.worldObj.isRemote) {
+            switch (aEventID) {
+                case 0: {
+                    this.mFacing = (short)aValue;
+                    this.mNeedsUpdate = true;
+                    break;
+                }
+                case 1: {
+                    this.mActive = aValue != 0;
+                    this.mNeedsUpdate = true;
+                    break;
+                }
+                case 2: {
+                    this.mRedstone = aValue != 0;
+                    this.mNeedsUpdate = true;
+                }
+            }
+        }
+    }
+
     public void readFromNBT(NBTTagCompound aNBT) {
         super.readFromNBT(aNBT);
-        
-        mStoredEnergy	= aNBT.getInteger("mStoredEnergy");
-        mFacing			= aNBT.getShort("mFacing");
-        mOwnerName		= aNBT.getString("mOwnerName");
-    	mActive			= aNBT.getBoolean("mActive");
-    	mRedstone		= aNBT.getBoolean("mRedstone");
-    	
-        getAdditionalData(aNBT);
-        
+        this.mStoredEnergy = aNBT.getInteger("mStoredEnergy");
+        this.mFacing = aNBT.getShort("mFacing");
+        this.mOwnerName = aNBT.getString("mOwnerName");
+        this.mActive = aNBT.getBoolean("mActive");
+        this.mRedstone = aNBT.getBoolean("mRedstone");
+        this.getAdditionalData(aNBT);
         NBTTagList tagList = aNBT.getTagList("Inventory");
-        for (int i = 0; i < tagList.tagCount(); i++) {
-            NBTTagCompound tag = (NBTTagCompound) tagList.tagAt(i);
+        for (int i = 0; i < tagList.tagCount(); ++i) {
+            NBTTagCompound tag = (NBTTagCompound)tagList.tagAt(i);
             byte slot = tag.getByte("Slot");
-            if (slot >= 0 && slot < mInventory.length) {
-                mInventory[slot] = ItemStack.loadItemStackFromNBT(tag);
-            }
+            if (slot < 0 || slot >= this.mInventory.length) continue;
+            this.mInventory[slot] = ItemStack.loadItemStackFromNBT((NBTTagCompound)tag);
         }
     }
 
-    @Override
     public void writeToNBT(NBTTagCompound aNBT) {
         super.writeToNBT(aNBT);
-        
-        aNBT.setInteger("mStoredEnergy", mStoredEnergy);
-        aNBT.setShort("mFacing", mFacing);
-        aNBT.setString("mOwnerName", mOwnerName);
-    	aNBT.setBoolean("mActive", mActive);
-    	aNBT.setBoolean("mRedstone", mRedstone);
-        
-        storeAdditionalData(aNBT);
-        
+        aNBT.setInteger("mStoredEnergy", this.mStoredEnergy);
+        aNBT.setShort("mFacing", this.mFacing);
+        aNBT.setString("mOwnerName", this.mOwnerName);
+        aNBT.setBoolean("mActive", this.mActive);
+        aNBT.setBoolean("mRedstone", this.mRedstone);
+        this.storeAdditionalData(aNBT);
         NBTTagList itemList = new NBTTagList();
-        for (int i = 0; i < mInventory.length; i++) {
-            ItemStack stack = mInventory[i];
-            if (stack != null) {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("Slot", (byte) i);
-                stack.writeToNBT(tag);
-                itemList.appendTag(tag);
-            }
+        for (int i = 0; i < this.mInventory.length; ++i) {
+            ItemStack stack = this.mInventory[i];
+            if (stack == null) continue;
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setByte("Slot", (byte)i);
+            stack.writeToNBT(tag);
+            itemList.appendTag((NBTBase)tag);
         }
-        aNBT.setTag("Inventory", itemList);
+        aNBT.setTag("Inventory", (NBTBase)itemList);
     }
 
-    @Override
     public void invalidate() {
-    	onRemoval();
-    	if (mIsAddedToEnet) mIsAddedToEnet = !GT_ModHandler.removeTileFromEnet(this);
+        this.onRemoval();
+        if (this.mIsAddedToEnet) {
+            this.mIsAddedToEnet = !GT_ModHandler.removeTileFromEnet(this);
+        }
         super.invalidate();
     }
 
-	@Override
     public void validate() {
         super.validate();
-        mNeedsUpdate = true;
-        mTickTimer = 0;
-    }
-    
-    @Override
-	public boolean isAddedToEnergyNet() {
-		return mIsAddedToEnet;
-	}
-    
-	@Override
-	public boolean acceptsEnergyFrom(TileEntity aReceiver, Direction aDirection) {
-    	if (isInvalid()) return false;
-		return isInputFacing(GT_ModHandler.convertIC2DirectionToShort(aDirection));
-	}
-
-	@Override
-	public boolean emitsEnergyTo(TileEntity aReceiver, Direction aDirection) {
-    	if (isInvalid()) return false;
-		return isOutputFacing(GT_ModHandler.convertIC2DirectionToShort(aDirection));
-	}
-
-	@Override
-	public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int aFacing) {
-		return aFacing != mFacing && isFacingValid(aFacing);
-	}
-
-	@Override
-	public short getFacing() {
-		return mFacing;
-	}
-
-	@Override
-	public void setFacing(short aFacing) {
-        mNeedsUpdate = true;
-		if (isFacingValid(aFacing)) {
-			mFacing = aFacing;
-		}
-	}
-
-	@Override
-	public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
-		return true;
-	}
-
-	@Override
-	public float getWrenchDropRate() {
-		return 0.8F;
-	}
-	
-    @Override
-    public int getSizeInventory() {
-        return mInventory.length;
+        this.mNeedsUpdate = true;
+        this.mTickTimer = 0L;
     }
 
-    @Override
-    public ItemStack getStackInSlot(int slot) {
-        return mInventory[slot];
+    public boolean isAddedToEnergyNet() {
+        return this.mIsAddedToEnet;
     }
 
-    @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
-        mInventory[slot] = stack;
-        if (stack != null && stack.stackSize > getInventoryStackLimit()) {
-            stack.stackSize = getInventoryStackLimit();
+    public boolean acceptsEnergyFrom(TileEntity aReceiver, Direction aDirection) {
+        if (this.isInvalid() || this.mReleaseEnergy) {
+            return false;
+        }
+        return this.isInputFacing(GT_ModHandler.convertIC2DirectionToShort(aDirection));
+    }
+
+    public boolean emitsEnergyTo(TileEntity aReceiver, Direction aDirection) {
+        if (this.isInvalid() || this.mReleaseEnergy) {
+            return this.mReleaseEnergy;
+        }
+        return this.isOutputFacing(GT_ModHandler.convertIC2DirectionToShort(aDirection));
+    }
+
+    public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int aFacing) {
+        return aFacing != this.mFacing && this.isFacingValid(aFacing);
+    }
+
+    public short getFacing() {
+        return this.mFacing;
+    }
+
+    public void setFacing(short aFacing) {
+        this.mNeedsUpdate = true;
+        if (this.isFacingValid(aFacing)) {
+            this.mFacing = aFacing;
         }
     }
 
-    @Override
+    public boolean wrenchCanRemove(EntityPlayer aPlayer) {
+        return this.playerOwnsThis(aPlayer);
+    }
+
+    public float getWrenchDropRate() {
+        return 0.8f;
+    }
+
+    public int getSizeInventory() {
+        return this.mInventory.length;
+    }
+
+    public ItemStack getStackInSlot(int slot) {
+        return this.mInventory[slot];
+    }
+
+    public void setInventorySlotContents(int slot, ItemStack stack) {
+        this.mInventory[slot] = stack;
+        if (stack != null && stack.stackSize > this.getInventoryStackLimit()) {
+            stack.stackSize = this.getInventoryStackLimit();
+        }
+    }
+
     public ItemStack decrStackSize(int slot, int amt) {
-        ItemStack stack = getStackInSlot(slot);
+        ItemStack stack = this.getStackInSlot(slot);
         if (stack != null) {
             if (stack.stackSize <= amt) {
-                setInventorySlotContents(slot, null);
+                this.setInventorySlotContents(slot, null);
             } else {
                 stack = stack.splitStack(amt);
                 if (stack.stackSize == 0) {
-                    setInventorySlotContents(slot, null);
+                    this.setInventorySlotContents(slot, null);
                 }
             }
         }
         return stack;
     }
 
-    @Override
     public ItemStack getStackInSlotOnClosing(int slot) {
-        ItemStack stack = getStackInSlot(slot);
+        ItemStack stack = this.getStackInSlot(slot);
         if (stack != null) {
-            setInventorySlotContents(slot, null);
+            this.setInventorySlotContents(slot, null);
         }
         return stack;
     }
-    
-    @Override
+
     public int getInventoryStackLimit() {
         return 64;
     }
-    
+
     public boolean playerOwnsThis(EntityPlayer aPlayer) {
-    	if (ownerControl())
-    		if (mOwnerName.equals("")&&!worldObj.isRemote)
-    			mOwnerName = aPlayer.username;
-    		else
-    			if (!mOwnerName.equals("Player") && !mOwnerName.equals(aPlayer.username))
-    				return false;
-    	return true;
+        if (this.ownerControl()) {
+            if (this.mOwnerName.equals("") && !this.worldObj.isRemote) {
+                this.mOwnerName = aPlayer.username;
+            } else if (!(aPlayer.username.equals("Player") || this.mOwnerName.equals("Player") || this.mOwnerName.equals(aPlayer.username))) {
+                return false;
+            }
+        }
+        return true;
     }
-    
-    @Override
+
     public boolean isUseableByPlayer(EntityPlayer aPlayer) {
-    	mNeedsUpdate = true;
-        return playerOwnsThis(aPlayer)&&!mFirstTick&&worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) == this && aPlayer.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64 && isAccessible(aPlayer);
+        this.mNeedsUpdate = true;
+        return this.playerOwnsThis(aPlayer) && !this.mFirstTick && this.mTickTimer > 20L && this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord, this.zCoord) == this && aPlayer.getDistanceSq((double)this.xCoord + 0.5, (double)this.yCoord + 0.5, (double)this.zCoord + 0.5) < 64.0 && this.isAccessible(aPlayer);
     }
-    
-	@Override
-	public int getStored() {
-		return Math.min(getEnergyVar(), maxEUStore());
-	}
-	
-	public boolean setStoredEnergy(int aEnergy) {
-		if (aEnergy < 0) aEnergy = 0;
-		setEnergyVar(aEnergy);
-		return true;
-	}
-	
-	public boolean decreaseStoredEnergy(int aEnergy, boolean aIgnoreTooLessEnergy) {
-		if (getEnergyVar() - aEnergy >= 0 || aIgnoreTooLessEnergy) {
-			setEnergyVar(getEnergyVar() - aEnergy);
-			if (getEnergyVar() < 0) {
-				setStoredEnergy(0);
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean increaseStoredEnergy(int aEnergy) {
-		if (getEnergyVar() < maxEUStore()) {
-			setStoredEnergy(getEnergyVar() + aEnergy);
-			return true;
-		}
-		return false;
-	}
-	
-	public void doExplosion(int aAmount) {
-        float tStrength = aAmount<10?1.0F:aAmount<32?2.0F:aAmount<128?3.0F:aAmount<512?4.0F:aAmount<2048?5.0F:aAmount<4096?6.0F:aAmount<8192?7.0F:8.0F;
-        int tX=xCoord, tY=yCoord, tZ=zCoord;
-        worldObj.setBlock(tX, tY, tZ, 0);
-        worldObj.createExplosion(null, tX+0.5, tY+0.5, tZ+0.5, tStrength, true);
+
+    public int getStored() {
+        return Math.min(this.getEnergyVar(), this.maxEUStore());
     }
-	
-	@Override
-	public int getMaxEnergyOutput() {
-		return maxEUOutput();
-	}
-	
-	@Override
-	public int demandsEnergy() {
-		return maxEUStore() - getEnergyVar();
-	}
-	
-	@Override
-	public int injectEnergy(Direction directionFrom, int aAmount) {
-		if (aAmount > maxEUInput()) {
-			doExplosion(aAmount);
-			return 0;
-		}
-		setStoredEnergy(getEnergyVar() + aAmount);
-		return 0;
-	}
-	
-	public int getTexture(int aSide, int aMeta) {
-		return 0;
-	}
-	
-	@Override
-	public int getCapacity() {
-		return maxEUStore();
-	}
-	
-	@Override
-	public int getOutput() {
-		return maxEUOutput();
-	}
-	
+
+    public boolean setStoredEnergy(int aEnergy) {
+        if (aEnergy < 0) {
+            aEnergy = 0;
+        }
+        this.setEnergyVar(aEnergy);
+        return true;
+    }
+
+    public boolean decreaseStoredEnergy(int aEnergy, boolean aIgnoreTooLessEnergy) {
+        if (this.getEnergyVar() - aEnergy >= 0 || aIgnoreTooLessEnergy) {
+            this.setEnergyVar(this.getEnergyVar() - aEnergy);
+            if (this.getEnergyVar() < 0) {
+                this.setStoredEnergy(0);
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean increaseStoredEnergy(int aEnergy) {
+        if (this.getEnergyVar() < this.maxEUStore()) {
+            this.setStoredEnergy(this.getEnergyVar() + aEnergy);
+            return true;
+        }
+        return false;
+    }
+
+    public void doExplosion(int aAmount) {
+        if (this.isAddedToEnergyNet() && GT_Mod.instance.mMachineWireFire) {
+            try {
+                this.mReleaseEnergy = true;
+                GT_ModHandler.removeTileFromEnet(this);
+                GT_ModHandler.addTileToEnet(this);
+                EnergyNet tEnergyNet = EnergyNet.getForWorld((World)this.worldObj);
+                if (tEnergyNet != null) {
+                    tEnergyNet.emitEnergyFrom((IEnergySource)this, 32);
+                    tEnergyNet.emitEnergyFrom((IEnergySource)this, 128);
+                    tEnergyNet.emitEnergyFrom((IEnergySource)this, 512);
+                    tEnergyNet.emitEnergyFrom((IEnergySource)this, 2048);
+                    tEnergyNet.emitEnergyFrom((IEnergySource)this, 8192);
+                }
+            }
+            catch (Exception e) {
+                // empty catch block
+            }
+        }
+        this.mReleaseEnergy = false;
+        float tStrength = aAmount < 10 ? 1.0f : (aAmount < 32 ? 2.0f : (aAmount < 128 ? 3.0f : (aAmount < 512 ? 4.0f : (aAmount < 2048 ? 5.0f : (aAmount < 4096 ? 6.0f : (aAmount < 8192 ? 7.0f : 8.0f))))));
+        int tX = this.xCoord;
+        int tY = this.yCoord;
+        int tZ = this.zCoord;
+        this.worldObj.setBlock(tX, tY, tZ, 0);
+        this.worldObj.createExplosion(null, (double)tX + 0.5, (double)tY + 0.5, (double)tZ + 0.5, tStrength, true);
+    }
+
+    public int getMaxEnergyOutput() {
+        if (this.mReleaseEnergy) {
+            return Integer.MAX_VALUE;
+        }
+        return this.maxEUOutput();
+    }
+
+    public int demandsEnergy() {
+        if (this.mReleaseEnergy) {
+            return 0;
+        }
+        return this.maxEUStore() - this.getEnergyVar();
+    }
+
+    public int injectEnergy(Direction directionFrom, int aAmount) {
+        if (aAmount > this.maxEUInput()) {
+            this.doExplosion(aAmount);
+            return 0;
+        }
+        this.setStoredEnergy(this.getEnergyVar() + aAmount);
+        return 0;
+    }
+
+    public int getTexture(int aSide, int aMeta) {
+        return 0;
+    }
+
+    public int getCapacity() {
+        return this.maxEUStore();
+    }
+
+    public int getOutput() {
+        return this.maxEUOutput();
+    }
+
     public boolean isActive() {
-    	return mActive;
+        return this.mActive;
     }
-    
-	public ArrayList<String> getDebugInfo(EntityPlayer aPlayer, int aLogLevel) {
-		ArrayList<String> tList = new ArrayList<String>();
-		if (aLogLevel > 2) {
-			if (isEnetInput() || isEnetOutput())	tList.add("Storage: " + getEnergyVar() + "/" + maxEUStore() + "EU");
-			if (isEnetInput()) 						tList.add("Max-EU-IN: " + maxEUInput());
-			if (isEnetOutput())						tList.add("Max-EU-OUT: " + maxEUOutput());
-		}
-		if (aLogLevel > 1) {
-			if (isEnetInput() || isEnetOutput())	tList.add("Tier: " + getTier());
-													tList.add("Is" + (isAccessible(aPlayer)?" ":" not") + "accessible for you");
-		}
-		if (aLogLevel > 0) {
-													tList.add("Machine is " + (mActive?"active":"inactive"));
-		}
-		return getSpecialDebugInfo(aPlayer, aLogLevel, tList);
-	}
 
-	@Override
-	public void setStored(int aEU) {
-		setEnergyVar(aEU);
-	}
+    public ArrayList getDebugInfo(EntityPlayer aPlayer, int aLogLevel) {
+        ArrayList<String> tList = new ArrayList<String>();
+        if (aLogLevel > 2) {
+            // empty if block
+        }
+        if (aLogLevel > 1) {
+            tList.add("Is" + (this.isAccessible(aPlayer) ? " " : " not ") + "accessible for you");
+        }
+        if (aLogLevel > 0) {
+            tList.add("Machine is " + (this.mActive ? "active" : "inactive"));
+        }
+        return this.getSpecialDebugInfo(aPlayer, aLogLevel, tList);
+    }
 
-	@Override
-	public int addEnergy(int aEnergy) {
-		if (aEnergy > 0)
-			increaseStoredEnergy(aEnergy);
-		else
-			decreaseStoredEnergy(-aEnergy, true);
-		return getStored();
-	}
+    public void setStored(int aEU) {
+        this.setEnergyVar(aEU);
+    }
 
-	@Override
-	public boolean isTeleporterCompatible(Direction side) {
-		return false;
-	}
+    public int addEnergy(int aEnergy) {
+        if (aEnergy > 0) {
+            this.increaseStoredEnergy(aEnergy);
+        } else {
+            this.decreaseStoredEnergy(-aEnergy, true);
+        }
+        return this.getStored();
+    }
 
-	@Override
-	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
-		return new ItemStack(GT_Mod.instance.mBlocks[1], 1, worldObj.getBlockMetadata(xCoord, yCoord, zCoord));
-	}
-	
-	@Override
-	public void onNetworkUpdate(String field) {
-		
-	}
+    public boolean isTeleporterCompatible(Direction side) {
+        return false;
+    }
 
-	@Override
-	public List<String> getNetworkedFields() {
-		ArrayList<String> rList = new ArrayList<String>();
-		rList.add("mOwnerName");
-		return null;
-	}
+    public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
+        return new ItemStack(GT_Mod.instance.mBlocks[1], 1, this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord));
+    }
 
-	@Override
-	public int getMaxSafeInput() {
-		return maxEUInput();
-	}
+    public void onNetworkUpdate(String field) {
+    }
+
+    public void doEnergyExplosion() {
+        if (this.getStored() >= this.getCapacity() / 5) {
+            this.doExplosion(this.getOutput() * (this.getStored() >= this.getCapacity() ? 4 : (this.getStored() >= this.getCapacity() / 2 ? 2 : 1)));
+        }
+    }
+
+    public List getNetworkedFields() {
+        ArrayList<String> rList = new ArrayList<String>();
+        rList.add("mOwnerName");
+        return rList;
+    }
+
+    public int getMaxSafeInput() {
+        return this.maxEUInput();
+    }
 }
+

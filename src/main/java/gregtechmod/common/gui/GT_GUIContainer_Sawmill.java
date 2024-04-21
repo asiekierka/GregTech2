@@ -1,47 +1,55 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  net.minecraft.entity.player.InventoryPlayer
+ *  net.minecraft.util.StatCollector
+ *  org.lwjgl.opengl.GL11
+ */
 package gregtechmod.common.gui;
 
 import gregtechmod.api.BaseMetaTileEntity;
 import gregtechmod.common.containers.GT_Container_Sawmill;
+import gregtechmod.common.gui.GT_GUIContainerMetaTile_Machine;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.StatCollector;
-
 import org.lwjgl.opengl.GL11;
 
-public class GT_GUIContainer_Sawmill extends GT_GUIContainerMetaTile_Machine {
-	
+public class GT_GUIContainer_Sawmill
+extends GT_GUIContainerMetaTile_Machine {
     public GT_GUIContainer_Sawmill(InventoryPlayer aInventoryPlayer, BaseMetaTileEntity aTileEntity, int aID) {
         super(new GT_Container_Sawmill(aInventoryPlayer, aTileEntity, aID), aTileEntity, aID);
     }
-    
+
     @Override
     protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-        fontRenderer.drawString("Industrial Sawmill", 8,  4, 4210752);
-        if (!((GT_Container_Sawmill)mContainer).mMachine)
-        	fontRenderer.drawString("Incomplete Machine Casing!", 8, ySize - 104, 4210752);
-        if (((mContainer).mDisplayErrorCode & 1) != 0)
-        	fontRenderer.drawString("Insufficient Energy Line!", 8, ySize - 94, 4210752);
-        else
-            fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94, 4210752);
-        	
+        this.fontRenderer.drawString("Industrial Sawmill", 8, 4, 0x404040);
+        if (!((GT_Container_Sawmill)this.mContainer).mMachine) {
+            this.fontRenderer.drawString("Incomplete Machine Casing!", 8, this.ySize - 104, 0x404040);
+        }
+        if ((this.mContainer.mDisplayErrorCode & 1) != 0) {
+            this.fontRenderer.drawString("Insufficient Energy Line!", 8, this.ySize - 94, 0x404040);
+        } else {
+            this.fontRenderer.drawString(StatCollector.translateToLocal((String)"container.inventory"), 8, this.ySize - 94, 0x404040);
+        }
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3) {
-        //draw your Gui here, only thing you need to change is the path
-        int texture = mc.renderEngine.getTexture("/gregtechmod/textures/gui/Sawmill.png");
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        int texture = this.mc.renderEngine.getTexture("/gregtechmod/textures/gui/Sawmill.png");
+        GL11.glColor4f((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
         this.mc.renderEngine.bindTexture(texture);
-        int x = (width - xSize) / 2;
-        int y = (height - ySize) / 2;
-        this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
-        
-        if (mContainer != null) {
-        	int tScale = ((GT_Container_Sawmill)mContainer).mProgressScale;
-        	this.drawTexturedModalRect(x + 58, y + 28, 176, 0, tScale, 11);
-
-        	tScale = ((GT_Container_Sawmill)mContainer).mWaterAmount/550;
-        	if (tScale > 0)
-        		this.drawTexturedModalRect(x + 33, y + 33 + 18 - tScale, 176, 33 + 18 - tScale, 18, tScale);
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+        this.drawTexturedModalRect(x, y, 0, 0, this.xSize, this.ySize);
+        if (this.mContainer != null) {
+            int tScale = ((GT_Container_Sawmill)this.mContainer).mProgressScale;
+            this.drawTexturedModalRect(x + 58, y + 28, 176, 0, tScale, 11);
+            tScale = ((GT_Container_Sawmill)this.mContainer).mWaterAmount / 550;
+            if (tScale > 0) {
+                this.drawTexturedModalRect(x + 33, y + 33 + 18 - tScale, 176, 51 - tScale, 18, tScale);
+            }
         }
     }
 }
+

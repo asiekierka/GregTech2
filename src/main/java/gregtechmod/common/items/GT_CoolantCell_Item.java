@@ -1,64 +1,70 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  ic2.api.IReactor
+ *  ic2.api.IReactorComponent
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.item.ItemStack
+ *  net.minecraft.nbt.NBTTagCompound
+ */
 package gregtechmod.common.items;
 
 import gregtechmod.GT_Mod;
 import gregtechmod.api.ICapsuleCellContainer;
+import gregtechmod.common.items.GT_Generic_Item;
 import ic2.api.IReactor;
 import ic2.api.IReactorComponent;
+import java.util.List;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class GT_CoolantCell_Item extends GT_Generic_Item implements IReactorComponent, ICapsuleCellContainer {
+public class GT_CoolantCell_Item
+extends GT_Generic_Item
+implements IReactorComponent,
+ICapsuleCellContainer {
+    private int heatStorage;
+    private int mCellCount;
 
-    private int heatStorage, mCellCount;
-	
     public GT_CoolantCell_Item(int aID, int aMaxStore, int aCellCount) {
         super(aID);
-        setMaxStackSize(1);
-        setMaxDamage(100);
-        setNoRepair();
-        heatStorage = aMaxStore;
-        mCellCount = aCellCount;
-        setCreativeTab(GT_Mod.tabGregTech);
+        this.setMaxStackSize(1);
+        this.setMaxDamage(100);
+        this.setNoRepair();
+        this.heatStorage = aMaxStore;
+        this.mCellCount = aCellCount;
+        this.setCreativeTab(GT_Mod.tabGregTech);
     }
 
-	@Override
-	public void processChamber(IReactor aReactor, ItemStack aStack, int x, int y) {
-		return;
-	}
+    public void processChamber(IReactor aReactor, ItemStack aStack, int x, int y) {
+    }
 
-	@Override
-	public boolean acceptUraniumPulse(IReactor aReactor, ItemStack aStack, ItemStack pulsingStack, int youX, int youY, int pulseX, int pulseY) {
-		return false;
-	}
+    public boolean acceptUraniumPulse(IReactor aReactor, ItemStack aStack, ItemStack pulsingStack, int youX, int youY, int pulseX, int pulseY) {
+        return false;
+    }
 
-	@Override
-	public boolean canStoreHeat(IReactor aReactor, ItemStack aStack, int x, int y) {
-		return true;
-	}
+    public boolean canStoreHeat(IReactor aReactor, ItemStack aStack, int x, int y) {
+        return true;
+    }
 
-	@Override
-	public int getMaxHeat(IReactor aReactor, ItemStack aStack, int x, int y) {
-		return heatStorage;
-	}
+    public int getMaxHeat(IReactor aReactor, ItemStack aStack, int x, int y) {
+        return this.heatStorage;
+    }
 
-	@Override
-	public int getCurrentHeat(IReactor aReactor, ItemStack aStack, int x, int y) {
-		return getHeatOfStack(aStack);
-	}
+    public int getCurrentHeat(IReactor aReactor, ItemStack aStack, int x, int y) {
+        return this.getHeatOfStack(aStack);
+    }
 
-	@Override
-	public float influenceExplosion(IReactor aReactor, ItemStack aStack) {
-		return 1.0F+heatStorage/30000.0F;
-	}
+    public float influenceExplosion(IReactor aReactor, ItemStack aStack) {
+        return 1.0f + (float)this.heatStorage / 30000.0f;
+    }
 
-	@Override
     public int alterHeat(IReactor aReactor, ItemStack aStack, int x, int y, int aHeat) {
-        int tHeat = getHeatOfStack(aStack);
-        tHeat += aHeat;
-
-        if (tHeat > heatStorage) {
+        int tHeat = this.getHeatOfStack(aStack);
+        if ((tHeat += aHeat) > this.heatStorage) {
             aReactor.setItemAt(x, y, (ItemStack)null);
-            aHeat = heatStorage - tHeat + 1;
+            aHeat = this.heatStorage - tHeat + 1;
         } else {
             if (tHeat < 0) {
                 aHeat = tHeat;
@@ -66,7 +72,7 @@ public class GT_CoolantCell_Item extends GT_Generic_Item implements IReactorComp
             } else {
                 aHeat = 0;
             }
-            setHeatForStack(aStack, tHeat);
+            this.setHeatForStack(aStack, tHeat);
         }
         return aHeat;
     }
@@ -77,18 +83,19 @@ public class GT_CoolantCell_Item extends GT_Generic_Item implements IReactorComp
             tNBT = new NBTTagCompound();
             aStack.setTagCompound(tNBT);
         }
-        
         tNBT.setInteger("heat", aHeat);
-
-        if (heatStorage > 0) {
-            double var4 = (double)aHeat / (double)heatStorage;
+        if (this.heatStorage > 0) {
+            double var4 = (double)aHeat / (double)this.heatStorage;
             int var6 = (int)((double)aStack.getMaxDamage() * var4);
-
             if (var6 >= aStack.getMaxDamage()) {
                 var6 = aStack.getMaxDamage() - 1;
             }
             aStack.setItemDamage(var6);
         }
+    }
+
+    public void addInformation(ItemStack aStack, EntityPlayer aPlayer, List aList, boolean aF3_H) {
+        aList.add("Stored Heat: " + this.getHeatOfStack(aStack));
     }
 
     private int getHeatOfStack(ItemStack aStack) {
@@ -100,8 +107,9 @@ public class GT_CoolantCell_Item extends GT_Generic_Item implements IReactorComp
         return tNBT.getInteger("heat");
     }
 
-	@Override
-	public int CapsuleCellContainerCount(ItemStack aStack) {
-		return mCellCount;
-	}
+    @Override
+    public int CapsuleCellContainerCount(ItemStack aStack) {
+        return this.mCellCount;
+    }
 }
+

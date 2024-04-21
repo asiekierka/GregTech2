@@ -1,108 +1,169 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  ic2.api.Direction
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.nbt.NBTTagCompound
+ *  net.minecraftforge.common.ForgeDirection
+ */
 package gregtechmod.common.tileentities;
 
 import gregtechmod.GT_Mod;
-import gregtechmod.common.GT_Coordinate;
 import gregtechmod.common.GT_LanguageManager;
 import gregtechmod.common.blocks.GT_BlockMetaID_Block;
+import gregtechmod.common.tileentities.GT_TileEntityMetaID_Machine;
 import ic2.api.Direction;
-
 import java.util.ArrayList;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 
-public class GT_TileEntity_LESU extends GT_TileEntityMetaID_Machine {
-	
-	private boolean mNotify = true, mInit = true;
-	private int mStorage = 2000000000;
+public class GT_TileEntity_LESU
+extends GT_TileEntityMetaID_Machine {
+    private boolean mNotify = true;
+    private boolean mInit = true;
+    private int mStorage = 2000000000;
 
-    public boolean isFacingValid(int aFacing) 			{return aFacing != getFacing();}
-    public boolean isAccessible(EntityPlayer aPlayer)	{return true;}
-    public boolean isEnetOutput()      					{return true;}
-    public boolean isEnetInput()       					{return true;}
-    public boolean isOutputFacing(short aDirection) 	{return ((aDirection + 4) % 6) == getFacing();}
-    public boolean isInputFacing(short aDirection)  	{return ((aDirection + 4) % 6) != getFacing();}
-    public int maxEUStore()            					{return mStorage;}
-    public int maxEUInput()            					{return getTier(maxEUOutput())==1?32:getTier(maxEUOutput())==2?128:512;}
-    public int maxEUOutput()           					{return Math.min(Math.max(mStorage/1000000+4, 1), 512);}
-    public int getInventorySlotCount() 					{return 2;}
-    
+    @Override
+    public boolean isFacingValid(int aFacing) {
+        return aFacing != this.getFacing();
+    }
+
+    @Override
+    public boolean isAccessible(EntityPlayer aPlayer) {
+        return true;
+    }
+
+    @Override
+    public boolean isEnetOutput() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnetInput() {
+        return true;
+    }
+
+    @Override
+    public boolean isOutputFacing(short aDirection) {
+        return (aDirection + 4) % 6 == this.getFacing();
+    }
+
+    @Override
+    public boolean isInputFacing(short aDirection) {
+        return (aDirection + 4) % 6 != this.getFacing();
+    }
+
+    @Override
+    public int maxEUStore() {
+        return this.mStorage;
+    }
+
+    @Override
+    public int maxEUInput() {
+        return this.getTier(this.maxEUOutput()) == 1 ? 32 : (this.getTier(this.maxEUOutput()) == 2 ? 128 : 512);
+    }
+
+    @Override
+    public int maxEUOutput() {
+        return Math.min(Math.max(this.mStorage / 1000000 + 4, 1), 512);
+    }
+
+    @Override
+    public int getInventorySlotCount() {
+        return 2;
+    }
+
+    @Override
     public void storeAdditionalData(NBTTagCompound aNBT) {
-    	aNBT.setInteger("mStorage", mStorage);
+        aNBT.setInteger("mStorage", this.mStorage);
     }
 
+    @Override
     public void getAdditionalData(NBTTagCompound aNBT) {
-    	mStorage = aNBT.getInteger("mStorage");
+        this.mStorage = aNBT.getInteger("mStorage");
     }
-    
+
+    @Override
     public void onPreTickUpdate() {
-	    if (!worldObj.isRemote) {
-	    	if (mNotify || mInit) {
-    			mStorage = 1000000;
-	    		if (GT_BlockMetaID_Block.stepToFindOrCallLESUController(worldObj, xCoord, yCoord, zCoord, new ArrayList<GT_Coordinate>(), mInit) < 2) {
-	    			mStorage = Math.min(2000000000, 1000000*GT_BlockMetaID_Block.stepToGetLESUAmount(worldObj, xCoord, yCoord, zCoord, new ArrayList<GT_Coordinate>()));
-	    		}
-	    		mNotify = mInit = false;
-	    		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 10, mStorage);
-	    		worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID);
-	    	}
-    	}
+        if (!this.worldObj.isRemote && (this.mNotify || this.mInit)) {
+            this.mStorage = 1000000;
+            if (GT_BlockMetaID_Block.stepToFindOrCallLESUController(this.worldObj, this.xCoord, this.yCoord, this.zCoord, new ArrayList(), this.mInit) < 2) {
+                this.mStorage = Math.min(2000000000, 1000000 * GT_BlockMetaID_Block.stepToGetLESUAmount(this.worldObj, this.xCoord, this.yCoord, this.zCoord, new ArrayList()));
+            }
+            this.mInit = false;
+            this.mNotify = false;
+            this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 10, this.mStorage);
+            this.worldObj.notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID);
+        }
     }
 
     @Override
     public void receiveClientEvent(int aEventID, int aValue) {
-    	super.receiveClientEvent(aEventID, aValue);
-    	if (worldObj.isRemote) {
-	    	switch(aEventID) {
-	    	case 10:
-	    		mStorage = aValue;
-	    		break;
-	    	}
-    	}
+        super.receiveClientEvent(aEventID, aValue);
+        if (this.worldObj.isRemote) {
+            switch (aEventID) {
+                case 10: {
+                    this.mStorage = aValue;
+                }
+            }
+        }
     }
-    
+
+    @Override
     public int rechargerSlotStartIndex() {
-    	return 0;
+        return 0;
     }
-    
+
+    @Override
     public int rechargerSlotCount() {
-    	return 1;
+        return 1;
     }
-    
+
+    @Override
     public int dechargerSlotStartIndex() {
-    	return 1;
+        return 1;
     }
-    
+
+    @Override
     public int dechargerSlotCount() {
-    	return 1;
+        return 1;
     }
-    
+
     public void notifyLESUchange() {
-    	mNotify = true;
+        this.mNotify = true;
     }
-    
-	@Override public int getStartInventorySide(ForgeDirection aSide) {
-		if (aSide == ForgeDirection.UP || aSide == ForgeDirection.EAST || aSide == ForgeDirection.WEST) return 0;
-		return 1;
-	}
-	
-	@Override public int getSizeInventorySide(ForgeDirection aSide) {
-		return 1;
-	}
-	
-    @Override public String getInvName() {return GT_LanguageManager.mNameList1[7];}
-    
+
+    @Override
+    public int getStartInventorySide(ForgeDirection aSide) {
+        if (aSide == ForgeDirection.UP || aSide == ForgeDirection.EAST || aSide == ForgeDirection.WEST) {
+            return 0;
+        }
+        return 1;
+    }
+
+    @Override
+    public int getSizeInventorySide(ForgeDirection aSide) {
+        return 1;
+    }
+
+    @Override
+    public String getInvName() {
+        return GT_LanguageManager.mNameList1[7];
+    }
+
     @Override
     public int getTexture(int aSide, int aMeta) {
-    	if (aSide == getFacing())
-    		return 12+getTier();
-    	else
-    		return 12;
+        if (aSide == this.getFacing()) {
+            return 12 + this.getTier();
+        }
+        return 12;
     }
-    
-	@Override
-	public boolean isTeleporterCompatible(Direction side) {
-		return true;
-	}
+
+    @Override
+    public boolean isTeleporterCompatible(Direction side) {
+        return true;
+    }
 }
+

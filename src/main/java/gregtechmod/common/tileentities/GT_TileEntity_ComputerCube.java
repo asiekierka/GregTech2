@@ -1,3 +1,20 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  ic2.api.IReactor
+ *  ic2.api.IReactorComponent
+ *  ic2.core.IC2
+ *  net.minecraft.entity.Entity
+ *  net.minecraft.entity.item.EntityItem
+ *  net.minecraft.entity.player.EntityPlayer
+ *  net.minecraft.item.Item
+ *  net.minecraft.item.ItemStack
+ *  net.minecraft.nbt.NBTTagCompound
+ *  net.minecraft.util.ChunkCoordinates
+ *  net.minecraft.world.World
+ *  net.minecraftforge.common.ForgeDirection
+ */
 package gregtechmod.common.tileentities;
 
 import gregtechmod.GT_Mod;
@@ -6,12 +23,12 @@ import gregtechmod.common.GT_ComputercubeDescription;
 import gregtechmod.common.GT_LanguageManager;
 import gregtechmod.common.GT_ModHandler;
 import gregtechmod.common.items.GT_MetaItem_Cell;
+import gregtechmod.common.tileentities.GT_TileEntityMetaID_Machine;
 import ic2.api.IReactor;
 import ic2.api.IReactorComponent;
 import ic2.core.IC2;
-
 import java.util.ArrayList;
-
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -21,520 +38,623 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class GT_TileEntity_ComputerCube extends GT_TileEntityMetaID_Machine implements IReactor {
-	
-	public static ArrayList<Item> sReactorList;
-	
-	public boolean mStarted = false;
-	public int mMode = 0, mHeat = 0, mEUOut = 0, mMaxHeat = 10000, mEU = 0, mProgress = 0;
-	public float mHEM = 1.0F, mExplosionStrength = 0.0F;
-	
+public class GT_TileEntity_ComputerCube
+extends GT_TileEntityMetaID_Machine
+implements IReactor {
+    public static ArrayList sReactorList;
+    public boolean mStarted = false;
+    public int mMode = 0;
+    public int mHeat = 0;
+    public int mEUOut = 0;
+    public int mMaxHeat = 10000;
+    public int mEU = 0;
+    public int mProgress = 0;
+    public int mEUTimer = 0;
+    public int mEULast1 = 0;
+    public int mEULast2 = 0;
+    public int mEULast3 = 0;
+    public int mEULast4 = 0;
+    public float mHEM = 1.0f;
+    public float mExplosionStrength = 0.0f;
+
+    @Override
     public boolean isAccessible(EntityPlayer aPlayer) {
-    	ItemStack tStack = aPlayer.getCurrentEquippedItem();
-    	if (tStack == null) return true;
-    	if (tStack.isItemEqual(GT_Mod.getGregTechItem(43, 1, 0))) return false;
-    	return true;
+        ItemStack tStack = aPlayer.getCurrentEquippedItem();
+        if (tStack == null) {
+            return true;
+        }
+        return !tStack.isItemEqual(GT_Mod.getGregTechItem(43, 1, 0));
     }
-    
-    public boolean isEnetInput()       					{return true;}
-    public boolean isInputFacing(short aDirection)  	{return true;}
-    public int maxEUStore()            					{return 10000;}
-    public int maxEUInput()            					{return 32;}
-    public boolean ownerControl()						{return true;}
-    
-    /**
-     * Description of the Slots
-     *   0 -  53 = ReactorPlannerMainSlots
-     *  54 -  57 = ScannerSlots
-     *  58       = DummySlot for the MenuButtons
-     *  59 - 112 = ReactorPlannerSaveSlots
-     * 113       = The ReactorPlannerCopySlot
-     */
+
+    @Override
+    public boolean isEnetInput() {
+        return true;
+    }
+
+    @Override
+    public boolean isInputFacing(short aDirection) {
+        return true;
+    }
+
+    @Override
+    public int maxEUStore() {
+        return 10000;
+    }
+
+    @Override
+    public int maxEUInput() {
+        return 32;
+    }
+
+    @Override
+    public boolean ownerControl() {
+        return true;
+    }
+
+    @Override
     public int getInventorySlotCount() {
-    	return 114;
+        return 114;
     }
-    
+
+    @Override
     public boolean isValidSlot(int aIndex) {
-    	return aIndex > 53 && aIndex < 58;
+        return aIndex > 53 && aIndex < 58;
     }
-    
-	public void saveNuclearReactor() {
-		for (int i = 0; i < 54; i++) {
-			if (mInventory[i] == null)
-				mInventory[i+59] = null;
-			else
-				mInventory[i+59] = mInventory[i].copy();
-		}
-	}
-    
-	public void loadNuclearReactor() {
-		for (int i = 0; i < 54; i++) {
-			if (mInventory[i+59] == null)
-				mInventory[i] = null;
-			else
-				mInventory[i] = mInventory[i+59].copy();
-		}
-	}
-    
+
+    public void saveNuclearReactor() {
+        for (int i = 0; i < 54; ++i) {
+            this.mInventory[i + 59] = this.mInventory[i] == null ? null : this.mInventory[i].copy();
+        }
+    }
+
+    public void loadNuclearReactor() {
+        for (int i = 0; i < 54; ++i) {
+            this.mInventory[i] = this.mInventory[i + 59] == null ? null : this.mInventory[i + 59].copy();
+        }
+    }
+
     public void reset() {
-    	mEU = 0;
-    	mHeat = 0;
-    	mEUOut = 0;
-    	mMaxHeat = 10000;
-        mHEM = 1.0F;
-        mExplosionStrength = 0.0F;
-        mProgress = 0;
-        
-        mInventory[113] = null;
-        
-		for (int i = 0; i < 54; i++) {
-			mInventory[i   ] = null;
-			mInventory[i+59] = null;
-		}
-		
-		for (int i = 54; i < 58; i++) {
-			if (mInventory[i] != null) {
-				if (!worldObj.isRemote) worldObj.spawnEntityInWorld(new EntityItem(worldObj, xCoord + 0.5, yCoord + 0.5, zCoord + 0.5, mInventory[i]));
-				mInventory[i] = null;
-			}
-		}
+        int i;
+        this.mEU = 0;
+        this.mHeat = 0;
+        this.mEUOut = 0;
+        this.mMaxHeat = 10000;
+        this.mHEM = 1.0f;
+        this.mExplosionStrength = 0.0f;
+        this.mProgress = 0;
+        this.mInventory[113] = null;
+        for (i = 0; i < 54; ++i) {
+            this.mInventory[i] = null;
+            this.mInventory[i + 59] = null;
+        }
+        for (i = 54; i < 58; ++i) {
+            if (this.mInventory[i] == null) continue;
+            if (!this.worldObj.isRemote) {
+                this.worldObj.spawnEntityInWorld((Entity)new EntityItem(this.worldObj, (double)this.xCoord + 0.5, (double)this.yCoord + 0.5, (double)this.zCoord + 0.5, this.mInventory[i]));
+            }
+            this.mInventory[i] = null;
+        }
     }
-    
-    public void switchMode() {
-    	mMode = (mMode+1)%7;
-    	reset();
-    	if (mMode==1&&!GT_Mod.instance.mReactorplanner) {
-    		switchMode();
-    		return;
-    	}
-        if (mMode==2&&!GT_Mod.instance.mSeedscanner) {
-        	switchMode();
-        	return;
-        }
-        if (mMode==3) {
-        	showCentrifugeRecipe(0);
-        }
-        if (mMode==4) {
-        	showFusionRecipe(0);
-        }
-        if (mMode==5) {
-        	showDescription(0);
-        }
-        if (mMode==6) {
-        	showElectrolyzerRecipe(0);
-        }
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 10, mMode);
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, mMaxHeat);
+
+    public void switchModeForward() {
+        this.mMode = (this.mMode + 1) % 7;
+        this.switchMode();
     }
-    
+
+    public void switchModeBackward() {
+        --this.mMode;
+        if (this.mMode < 0) {
+            this.mMode = 6;
+        }
+        this.switchMode();
+    }
+
+    private void switchMode() {
+        this.reset();
+        if (this.mMode == 1 && !GT_Mod.instance.mReactorplanner) {
+            this.switchMode();
+            return;
+        }
+        if (this.mMode == 2 && !GT_Mod.instance.mSeedscanner) {
+            this.switchMode();
+            return;
+        }
+        if (this.mMode == 3) {
+            this.showCentrifugeRecipe(0);
+        }
+        if (this.mMode == 4) {
+            this.showFusionRecipe(0);
+        }
+        if (this.mMode == 5) {
+            this.showDescription(0);
+        }
+        if (this.mMode == 6) {
+            this.showElectrolyzerRecipe(0);
+        }
+        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 10, this.mMode);
+        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, this.mMaxHeat);
+    }
+
     public void showDescription(int aIndex) {
-    	mExplosionStrength = 0.0F;
-    	if (aIndex >= GT_ComputercubeDescription.sDescriptions.size() || aIndex < 0) aIndex = 0;
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 0] == null) mInventory[59] = null; else  mInventory[59] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 0].copy();
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 1] == null) mInventory[60] = null; else  mInventory[60] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 1].copy();
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 2] == null) mInventory[61] = null; else  mInventory[61] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 2].copy();
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 3] == null) mInventory[62] = null; else  mInventory[62] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 3].copy();
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 4] == null) mInventory[63] = null; else  mInventory[63] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 4].copy();
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 5] == null) mInventory[64] = null; else {mInventory[64] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 5].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 6] == null) mInventory[65] = null; else {mInventory[65] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 6].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 7] == null) mInventory[66] = null; else {mInventory[66] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 7].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 8] == null) mInventory[67] = null; else {mInventory[67] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 8].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 9] == null) mInventory[68] = null; else {mInventory[68] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[ 9].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[10] == null) mInventory[69] = null; else {mInventory[69] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[10].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[11] == null) mInventory[70] = null; else {mInventory[70] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[11].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[12] == null) mInventory[71] = null; else {mInventory[71] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[12].copy(); mExplosionStrength = 100.0F;}
-    	if (GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[13] == null) mInventory[72] = null; else {mInventory[72] = GT_ComputercubeDescription.sDescriptions.get(aIndex).mStacks[13].copy(); mExplosionStrength = 100.0F;}
-    	mMaxHeat = aIndex;
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, mMaxHeat);
+        this.mExplosionStrength = 0.0f;
+        if (aIndex >= GT_ComputercubeDescription.sDescriptions.size() || aIndex < 0) {
+            aIndex = 0;
+        }
+        this.mInventory[59] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[0] == null ? null : ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[0].copy();
+        this.mInventory[60] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[1] == null ? null : ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[1].copy();
+        this.mInventory[61] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[2] == null ? null : ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[2].copy();
+        this.mInventory[62] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[3] == null ? null : ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[3].copy();
+        this.mInventory[63] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[4] == null ? null : ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[4].copy();
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[5] == null) {
+            this.mInventory[64] = null;
+        } else {
+            this.mInventory[64] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[5].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[6] == null) {
+            this.mInventory[65] = null;
+        } else {
+            this.mInventory[65] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[6].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[7] == null) {
+            this.mInventory[66] = null;
+        } else {
+            this.mInventory[66] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[7].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[8] == null) {
+            this.mInventory[67] = null;
+        } else {
+            this.mInventory[67] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[8].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[9] == null) {
+            this.mInventory[68] = null;
+        } else {
+            this.mInventory[68] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[9].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[10] == null) {
+            this.mInventory[69] = null;
+        } else {
+            this.mInventory[69] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[10].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[11] == null) {
+            this.mInventory[70] = null;
+        } else {
+            this.mInventory[70] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[11].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[12] == null) {
+            this.mInventory[71] = null;
+        } else {
+            this.mInventory[71] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[12].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        if (((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[13] == null) {
+            this.mInventory[72] = null;
+        } else {
+            this.mInventory[72] = ((GT_ComputercubeDescription)GT_ComputercubeDescription.sDescriptions.get((int)aIndex)).mStacks[13].copy();
+            this.mExplosionStrength = 100.0f;
+        }
+        this.mMaxHeat = aIndex;
+        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, this.mMaxHeat);
     }
-    
-	public void switchDescriptionPageForward() {
-		if (++mMaxHeat >= GT_ComputercubeDescription.sDescriptions.size()) mMaxHeat = 0;
-		showDescription(mMaxHeat);
-	}
-	
-	public void switchDescriptionPageBackward() {
-		if (--mMaxHeat < 0) mMaxHeat = GT_ComputercubeDescription.sDescriptions.size() - 1;
-		showDescription(mMaxHeat);
-	}
+
+    public void switchDescriptionPageForward() {
+        if (++this.mMaxHeat >= GT_ComputercubeDescription.sDescriptions.size()) {
+            this.mMaxHeat = 0;
+        }
+        this.showDescription(this.mMaxHeat);
+    }
+
+    public void switchDescriptionPageBackward() {
+        if (--this.mMaxHeat < 0) {
+            this.mMaxHeat = GT_ComputercubeDescription.sDescriptions.size() - 1;
+        }
+        this.showDescription(this.mMaxHeat);
+    }
 
     public void showCentrifugeRecipe(int aIndex) {
-    	if (aIndex >= GT_Recipe.sCentrifugeRecipes.size() || aIndex < 0) aIndex = 0;
-    	GT_Recipe tRecipe = GT_Recipe.sCentrifugeRecipes.get(aIndex);
-    	if (tRecipe != null) {
-    		if (tRecipe.mInput1  == null) mInventory[59] = null; else mInventory[59] = tRecipe.mInput1 .copy();
-    		if (tRecipe.mInput2  == null) mInventory[60] = null; else mInventory[60] = tRecipe.mInput2 .copy();
-    		if (tRecipe.mOutput1 == null) mInventory[61] = null; else mInventory[61] = tRecipe.mOutput1.copy();
-    		if (tRecipe.mOutput2 == null) mInventory[62] = null; else mInventory[62] = tRecipe.mOutput2.copy();
-    		if (tRecipe.mOutput3 == null) mInventory[63] = null; else mInventory[63] = tRecipe.mOutput3.copy();
-    		if (tRecipe.mOutput4 == null) mInventory[64] = null; else mInventory[64] = tRecipe.mOutput4.copy();
-    		mEU = tRecipe.mDuration * 5;
-    		mMaxHeat = aIndex;
-    	}
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, mMaxHeat);
+        GT_Recipe tRecipe;
+        if (aIndex >= GT_Recipe.sCentrifugeRecipes.size() || aIndex < 0) {
+            aIndex = 0;
+        }
+        if ((tRecipe = (GT_Recipe)GT_Recipe.sCentrifugeRecipes.get(aIndex)) != null) {
+            this.mInventory[59] = tRecipe.mInput1 == null ? null : tRecipe.mInput1.copy();
+            this.mInventory[60] = tRecipe.mInput2 == null ? null : tRecipe.mInput2.copy();
+            this.mInventory[61] = tRecipe.mOutput1 == null ? null : tRecipe.mOutput1.copy();
+            this.mInventory[62] = tRecipe.mOutput2 == null ? null : tRecipe.mOutput2.copy();
+            this.mInventory[63] = tRecipe.mOutput3 == null ? null : tRecipe.mOutput3.copy();
+            this.mInventory[64] = tRecipe.mOutput4 == null ? null : tRecipe.mOutput4.copy();
+            this.mEU = tRecipe.mDuration * 5;
+            this.mMaxHeat = aIndex;
+        }
+        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, this.mMaxHeat);
     }
-    
-	public void switchCentrifugePageForward() {
-		if (++mMaxHeat >= GT_Recipe.sCentrifugeRecipes.size()) mMaxHeat = 0;
-		showCentrifugeRecipe(mMaxHeat);
-	}
-	
-	public void switchCentrifugePageBackward() {
-		if (--mMaxHeat < 0) mMaxHeat = GT_Recipe.sCentrifugeRecipes.size() - 1;
-		showCentrifugeRecipe(mMaxHeat);
-	}
+
+    public void switchCentrifugePageForward() {
+        if (++this.mMaxHeat >= GT_Recipe.sCentrifugeRecipes.size()) {
+            this.mMaxHeat = 0;
+        }
+        this.showCentrifugeRecipe(this.mMaxHeat);
+    }
+
+    public void switchCentrifugePageBackward() {
+        if (--this.mMaxHeat < 0) {
+            this.mMaxHeat = GT_Recipe.sCentrifugeRecipes.size() - 1;
+        }
+        this.showCentrifugeRecipe(this.mMaxHeat);
+    }
 
     public void showElectrolyzerRecipe(int aIndex) {
-    	if (aIndex >= GT_Recipe.sElectrolyzerRecipes.size() || aIndex < 0) aIndex = 0;
-    	GT_Recipe tRecipe = GT_Recipe.sElectrolyzerRecipes.get(aIndex);
-    	if (tRecipe != null) {
-    		if (tRecipe.mInput1  == null) mInventory[59] = null; else mInventory[59] = tRecipe.mInput1 .copy();
-    		if (tRecipe.mInput2  == null) mInventory[60] = null; else mInventory[60] = tRecipe.mInput2 .copy();
-    		if (tRecipe.mOutput1 == null) mInventory[61] = null; else mInventory[61] = tRecipe.mOutput1.copy();
-    		if (tRecipe.mOutput2 == null) mInventory[62] = null; else mInventory[62] = tRecipe.mOutput2.copy();
-    		if (tRecipe.mOutput3 == null) mInventory[63] = null; else mInventory[63] = tRecipe.mOutput3.copy();
-    		if (tRecipe.mOutput4 == null) mInventory[64] = null; else mInventory[64] = tRecipe.mOutput4.copy();
-    		mEU = tRecipe.mDuration * tRecipe.mEUt;
-    		mMaxHeat = aIndex;
-    	}
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, mMaxHeat);
+        GT_Recipe tRecipe;
+        if (aIndex >= GT_Recipe.sElectrolyzerRecipes.size() || aIndex < 0) {
+            aIndex = 0;
+        }
+        if ((tRecipe = (GT_Recipe)GT_Recipe.sElectrolyzerRecipes.get(aIndex)) != null) {
+            this.mInventory[59] = tRecipe.mInput1 == null ? null : tRecipe.mInput1.copy();
+            this.mInventory[60] = tRecipe.mInput2 == null ? null : tRecipe.mInput2.copy();
+            this.mInventory[61] = tRecipe.mOutput1 == null ? null : tRecipe.mOutput1.copy();
+            this.mInventory[62] = tRecipe.mOutput2 == null ? null : tRecipe.mOutput2.copy();
+            this.mInventory[63] = tRecipe.mOutput3 == null ? null : tRecipe.mOutput3.copy();
+            this.mInventory[64] = tRecipe.mOutput4 == null ? null : tRecipe.mOutput4.copy();
+            this.mEU = tRecipe.mDuration * tRecipe.mEUt;
+            this.mMaxHeat = aIndex;
+        }
+        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, this.mMaxHeat);
     }
-    
-	public void switchElectrolyzerPageForward() {
-		if (++mMaxHeat >= GT_Recipe.sElectrolyzerRecipes.size()) mMaxHeat = 0;
-		showElectrolyzerRecipe(mMaxHeat);
-	}
-	
-	public void switchElectrolyzerPageBackward() {
-		if (--mMaxHeat < 0) mMaxHeat = GT_Recipe.sElectrolyzerRecipes.size() - 1;
-		showElectrolyzerRecipe(mMaxHeat);
-	}
-    
+
+    public void switchElectrolyzerPageForward() {
+        if (++this.mMaxHeat >= GT_Recipe.sElectrolyzerRecipes.size()) {
+            this.mMaxHeat = 0;
+        }
+        this.showElectrolyzerRecipe(this.mMaxHeat);
+    }
+
+    public void switchElectrolyzerPageBackward() {
+        if (--this.mMaxHeat < 0) {
+            this.mMaxHeat = GT_Recipe.sElectrolyzerRecipes.size() - 1;
+        }
+        this.showElectrolyzerRecipe(this.mMaxHeat);
+    }
+
     public void showFusionRecipe(int aIndex) {
-    	if (aIndex >= GT_Recipe.sFusionRecipes.size() || aIndex < 0) aIndex = 0;
-    	GT_Recipe tRecipe = GT_Recipe.sFusionRecipes.get(aIndex);
-    	if (tRecipe != null) {
-    		if (tRecipe.mInput1  == null) mInventory[59] = null; else mInventory[59] = tRecipe.mInput1 .copy();
-    		if (tRecipe.mInput2  == null) mInventory[60] = null; else mInventory[60] = tRecipe.mInput2 .copy();
-    		if (tRecipe.mOutput1 == null) mInventory[61] = null; else mInventory[61] = tRecipe.mOutput1.copy();
-    		mEU = tRecipe.mStartEU;
-    		mEUOut = tRecipe.mEUt;
-    		mHeat = tRecipe.mDuration;
-    		mMaxHeat = aIndex;
-    	}
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, mMaxHeat);
+        GT_Recipe tRecipe;
+        if (aIndex >= GT_Recipe.sFusionRecipes.size() || aIndex < 0) {
+            aIndex = 0;
+        }
+        if ((tRecipe = (GT_Recipe)GT_Recipe.sFusionRecipes.get(aIndex)) != null) {
+            this.mInventory[59] = tRecipe.mInput1 == null ? null : tRecipe.mInput1.copy();
+            this.mInventory[60] = tRecipe.mInput2 == null ? null : tRecipe.mInput2.copy();
+            this.mInventory[61] = tRecipe.mOutput1 == null ? null : tRecipe.mOutput1.copy();
+            this.mEU = tRecipe.mStartEU;
+            this.mEUOut = tRecipe.mEUt;
+            this.mHeat = tRecipe.mDuration;
+            this.mMaxHeat = aIndex;
+        }
+        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, this.mMaxHeat);
     }
-    
-	public void switchFusionPageForward() {
-		if (++mMaxHeat >= GT_Recipe.sFusionRecipes.size()) mMaxHeat = 0;
-		showFusionRecipe(mMaxHeat);
-	}
-	
-	public void switchFusionPageBackward() {
-		if (--mMaxHeat < 0) mMaxHeat = GT_Recipe.sFusionRecipes.size() - 1;
-		showFusionRecipe(mMaxHeat);
-	}
-	
+
+    public void switchFusionPageForward() {
+        if (++this.mMaxHeat >= GT_Recipe.sFusionRecipes.size()) {
+            this.mMaxHeat = 0;
+        }
+        this.showFusionRecipe(this.mMaxHeat);
+    }
+
+    public void switchFusionPageBackward() {
+        if (--this.mMaxHeat < 0) {
+            this.mMaxHeat = GT_Recipe.sFusionRecipes.size() - 1;
+        }
+        this.showFusionRecipe(this.mMaxHeat);
+    }
+
     public void switchNuclearReactor() {
-    	if (mStarted)
-    		stopNuclearReactor();
-    	else
-    		startNuclearReactor();
+        if (this.mStarted) {
+            this.stopNuclearReactor();
+        } else {
+            this.startNuclearReactor();
+        }
     }
-    
+
     public void startNuclearReactor() {
-    	mStarted = true;
-    	mHeat = 0;
-    	mEU = 0;
+        this.mStarted = true;
+        this.mHeat = 0;
+        this.mEU = 0;
     }
 
     public void stopNuclearReactor() {
-    	mStarted = false;
+        this.mStarted = false;
     }
-    
+
+    @Override
     public void storeAdditionalData(NBTTagCompound aNBT) {
-    	aNBT.setInteger("mMode", mMode);
-    	aNBT.setInteger("mProgress", mProgress);
-    	aNBT.setBoolean("mStarted", mStarted);
-    	aNBT.setInteger("mEU", mEU);
-    	aNBT.setInteger("mHeat", mHeat);
-    	aNBT.setInteger("mEUOut", mEUOut);
-    	aNBT.setInteger("mMaxHeat", mMaxHeat);
-    	aNBT.setFloat("mHEM", mHEM);
-    	aNBT.setFloat("mExplosionStrength", mExplosionStrength);
+        aNBT.setInteger("mMode", this.mMode);
+        aNBT.setInteger("mProgress", this.mProgress);
+        aNBT.setBoolean("mStarted", this.mStarted);
+        aNBT.setInteger("mEU", this.mEU);
+        aNBT.setInteger("mHeat", this.mHeat);
+        aNBT.setInteger("mEUOut", this.mEUOut);
+        aNBT.setInteger("mMaxHeat", this.mMaxHeat);
+        aNBT.setFloat("mHEM", this.mHEM);
+        aNBT.setFloat("mExplosionStrength", this.mExplosionStrength);
     }
 
+    @Override
     public void getAdditionalData(NBTTagCompound aNBT) {
-    	mMode = aNBT.getInteger("mMode");
-    	mProgress = aNBT.getInteger("mProgress");
-    	mStarted = aNBT.getBoolean("mStarted");
-    	mEU = aNBT.getInteger("mEU");
-    	mHeat = aNBT.getInteger("mHeat");
-    	mEUOut = aNBT.getInteger("mEUOut");
-    	mMaxHeat = aNBT.getInteger("mMaxHeat");
-    	mHEM = aNBT.getFloat("mHEM");
-    	mExplosionStrength = aNBT.getFloat("mExplosionStrength");
+        this.mMode = aNBT.getInteger("mMode");
+        this.mProgress = aNBT.getInteger("mProgress");
+        this.mStarted = aNBT.getBoolean("mStarted");
+        this.mEU = aNBT.getInteger("mEU");
+        this.mHeat = aNBT.getInteger("mHeat");
+        this.mEUOut = aNBT.getInteger("mEUOut");
+        this.mMaxHeat = aNBT.getInteger("mMaxHeat");
+        this.mHEM = aNBT.getFloat("mHEM");
+        this.mExplosionStrength = aNBT.getFloat("mExplosionStrength");
     }
-	
-    public void onFirstTickUpdate() {
-    	if (sReactorList == null) {
-    		sReactorList = new ArrayList<Item>();
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorUraniumSimple", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorUraniumDual", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorUraniumQuad", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorIsotopeCell", 1).getItem());
 
-    		sReactorList.add(GT_Mod.instance.mItems[48]);
-    		sReactorList.add(GT_Mod.instance.mItems[49]);
-    		sReactorList.add(GT_Mod.instance.mItems[50]);
-    		sReactorList.add(GT_Mod.instance.mItems[51]);
-    		sReactorList.add(GT_Mod.instance.mItems[52]);
-    		sReactorList.add(GT_Mod.instance.mItems[53]);
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorReflector", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorReflectorThick", 1).getItem());
-    		sReactorList.add(GT_Mod.instance.mItems[40]);
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorCoolantSimple", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorCoolantTriple", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorCoolantSix", 1).getItem());
-    		
-    		sReactorList.add(GT_Mod.instance.mItems[34]);
-    		sReactorList.add(GT_Mod.instance.mItems[35]);
-    		sReactorList.add(GT_Mod.instance.mItems[36]);
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorCondensator", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorCondensatorLap", 1).getItem());
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorPlating", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorPlatingHeat", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorPlatingExplosive", 1).getItem());
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorVent", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorVentCore", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorVentGold", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorVentSpread", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorVentDiamond", 1).getItem());
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitch", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitchCore", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitchSpread", 1).getItem());
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitchDiamond", 1).getItem());
-    		
-    		sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatpack", 1).getItem());
-    		
-    		for (int i = 0; i < Item.itemsList.length; i++) {
-    			if (Item.itemsList[i] != null && Item.itemsList[i] instanceof IReactorComponent && !sReactorList.contains(Item.itemsList[i]) && !(Item.itemsList[i] instanceof GT_MetaItem_Cell)) {
-    				sReactorList.add(Item.itemsList[i]);
-    			}
-    		}
-    	}
+    @Override
+    public void onFirstTickUpdate() {
+        if (sReactorList == null) {
+            sReactorList = new ArrayList();
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorUraniumSimple", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorUraniumDual", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorUraniumQuad", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorIsotopeCell", 1).getItem());
+            sReactorList.add(GT_Mod.instance.mItems[48]);
+            sReactorList.add(GT_Mod.instance.mItems[49]);
+            sReactorList.add(GT_Mod.instance.mItems[50]);
+            sReactorList.add(GT_Mod.instance.mItems[51]);
+            sReactorList.add(GT_Mod.instance.mItems[52]);
+            sReactorList.add(GT_Mod.instance.mItems[53]);
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorReflector", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorReflectorThick", 1).getItem());
+            sReactorList.add(GT_Mod.instance.mItems[40]);
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorCoolantSimple", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorCoolantTriple", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorCoolantSix", 1).getItem());
+            sReactorList.add(GT_Mod.instance.mItems[34]);
+            sReactorList.add(GT_Mod.instance.mItems[35]);
+            sReactorList.add(GT_Mod.instance.mItems[36]);
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorCondensator", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorCondensatorLap", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorPlating", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorPlatingHeat", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorPlatingExplosive", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorVent", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorVentCore", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorVentGold", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorVentSpread", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorVentDiamond", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitch", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitchCore", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitchSpread", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatSwitchDiamond", 1).getItem());
+            sReactorList.add(GT_ModHandler.getIC2Item("reactorHeatpack", 1).getItem());
+            for (int i = 0; i < Item.itemsList.length; ++i) {
+                if (Item.itemsList[i] == null || !(Item.itemsList[i] instanceof IReactorComponent) || sReactorList.contains(Item.itemsList[i]) || Item.itemsList[i] instanceof GT_MetaItem_Cell) continue;
+                sReactorList.add(Item.itemsList[i]);
+            }
+        }
     }
-    
+
+    @Override
     public void onPostTickUpdate() {
-    	if (!worldObj.isRemote) {
-    		if (mMode == 2) {
-    			if (mInventory[55] == null) {
-    				mInventory[55] = mInventory[54];
-    				mInventory[54] = null;
-    			}
-    			if (mInventory[57] == null) {
-    				mInventory[57] = mInventory[56];
-    				mInventory[56] = null;
-    			}
-    			if (GT_Mod.instance.mSeedscanner && mInventory[55] != null && mInventory[55].itemID == GT_ModHandler.getIC2Item("cropSeed", 1).itemID) {
-    				int tScanValue = 4;
-    				try {
-    					tScanValue = (Byte)(Class.forName("ic2.common.ItemCropSeed").getMethod("getScannedFromStack", ItemStack.class).invoke(null, mInventory[55]));
-    				} catch (Exception e) {
-    					System.err.println(e);
-    				}
-    				if (tScanValue < 4) {
-    					if (mProgress >= 100) {
-    						for (int i = tScanValue; i < 4; i++) {
-    		    				try {
-    		    					Class.forName("ic2.common.ItemCropSeed").getMethod("incrementScannedOfStack", ItemStack.class).invoke(null, mInventory[55]);
-    		    				} catch (Exception e) {
-    		    					System.err.println(e);
-    		    				}    							
-    						}
-    						mProgress = 0;
-    					} else {
-    						if (decreaseStoredEnergy(100, false)) {
-    							mProgress++;
-    						}
-    					}
-    				} else {
-    					mProgress = 0;
-    	    			if (mInventory[56] == null) {
-    	    				mInventory[56] = mInventory[55];
-    	    				mInventory[55] = null;
-    	    			}
-    				}
-    			} else {
-    				mProgress = 0;
-    				if (mInventory[56] == null) {
-	    				mInventory[56] = mInventory[55];
-	    				mInventory[55] = null;
-	    			}
-    			}
-    		}
-    		if (mMode == 1 && GT_Mod.instance.mReactorplanner && mStarted && decreaseStoredEnergy(32, false)) for (int i = 0; i < 25 && mStarted; i++) {
-		        mEUOut = 0;
-		        mMaxHeat = 10000;
-		        mHEM = 1.0F;
-		        mExplosionStrength = 10.0F;
-		        float tMultiplier = 1.0F;
-		        
-		        for (int y = 0; y < 6; y++) {
-		            for (int x = 0; x < 9; x++) {
-		                ItemStack tStack = getStackInSlot(x + y * 9);
-		                if (tStack != null) {
-		                	if (tStack.getItem() instanceof IReactorComponent) {
-			                    IReactorComponent tComponent = (IReactorComponent)tStack.getItem();
-			                    
-			                    tComponent.processChamber(this, tStack, x, y);
-			                    
-			                    float tInfluence = ((IReactorComponent)tStack.getItem()).influenceExplosion(this, tStack);
-			                    
-			                    if (tInfluence > 0.0F && tInfluence < 1.0F) {
-			                    	tMultiplier *= tInfluence;
-			                    } else {
-			                    	mExplosionStrength += tInfluence;
-			                    }
-		                	} else {
-		                		if (tStack.isItemEqual(GT_ModHandler.getIC2Item("nearDepletedUraniumCell", 1)) || tStack.isItemEqual(GT_ModHandler.getIC2Item("reEnrichedUraniumCell", 1))) {
-		                			stopNuclearReactor();
-		                		} else {
-		                			setInventorySlotContents(x + y * 9, null);
-		                		}
-		                	}
-		                }
-		            }
-		        }
-		        
-		        mEUOut *= IC2.energyGeneratorNuclear;
-		        
-		        if (mEUOut == 0 || mHeat >= mMaxHeat) stopNuclearReactor();
-		        
-		        mExplosionStrength *= mHEM * tMultiplier;
-		        
-		        mEU += mEUOut * 20;
-    		}
-    		if (mTickTimer%20==0) {
-    			worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 10, mMode);
-    			worldObj.addBlockEvent(xCoord, yCoord, zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, mMaxHeat);
-    		}
-    	}
+        if (!this.worldObj.isRemote) {
+            if (this.mMode == 2) {
+                if (this.mInventory[55] == null) {
+                    this.mInventory[55] = this.mInventory[54];
+                    this.mInventory[54] = null;
+                }
+                if (this.mInventory[57] == null) {
+                    this.mInventory[57] = this.mInventory[56];
+                    this.mInventory[56] = null;
+                }
+                if (GT_Mod.instance.mSeedscanner && this.mInventory[55] != null && this.mInventory[55].itemID == GT_ModHandler.getIC2Item((String)"cropSeed", (int)1).itemID && this.mInventory[55].getTagCompound() != null) {
+                    if (this.mInventory[55].getTagCompound().getByte("scan") < 4) {
+                        if (this.mProgress >= 100) {
+                            this.mInventory[55].getTagCompound().setByte("scan", (byte)4);
+                            this.mProgress = 0;
+                        } else if (this.decreaseStoredEnergy(100, false)) {
+                            ++this.mProgress;
+                        }
+                    } else {
+                        this.mProgress = 0;
+                        if (this.mInventory[56] == null) {
+                            this.mInventory[56] = this.mInventory[55];
+                            this.mInventory[55] = null;
+                        }
+                    }
+                } else {
+                    this.mProgress = 0;
+                    if (this.mInventory[56] == null) {
+                        this.mInventory[56] = this.mInventory[55];
+                        this.mInventory[55] = null;
+                    }
+                }
+            }
+            if (this.mMode == 1 && GT_Mod.instance.mReactorplanner && this.mStarted && this.decreaseStoredEnergy(32, false)) {
+                for (int i = 0; i < 25 && this.mStarted; ++i) {
+                    this.mEUOut = 0;
+                    this.mMaxHeat = 10000;
+                    this.mHEM = 1.0f;
+                    this.mExplosionStrength = 10.0f;
+                    float tMultiplier = 1.0f;
+                    for (int y = 0; y < 6; ++y) {
+                        for (int x = 0; x < 9; ++x) {
+                            ItemStack tStack = this.getStackInSlot(x + y * 9);
+                            if (tStack == null) continue;
+                            if (tStack.getItem() instanceof IReactorComponent) {
+                                IReactorComponent tComponent = (IReactorComponent)tStack.getItem();
+                                tComponent.processChamber((IReactor)this, tStack, x, y);
+                                float tInfluence = ((IReactorComponent)tStack.getItem()).influenceExplosion((IReactor)this, tStack);
+                                if (tInfluence > 0.0f && tInfluence < 1.0f) {
+                                    tMultiplier *= tInfluence;
+                                    continue;
+                                }
+                                this.mExplosionStrength += tInfluence;
+                                continue;
+                            }
+                            if (tStack.isItemEqual(GT_ModHandler.getIC2Item("nearDepletedUraniumCell", 1)) || tStack.isItemEqual(GT_ModHandler.getIC2Item("reEnrichedUraniumCell", 1))) {
+                                this.stopNuclearReactor();
+                                continue;
+                            }
+                            this.setInventorySlotContents(x + y * 9, null);
+                        }
+                    }
+                    this.mEUOut *= IC2.energyGeneratorNuclear;
+                    if (this.mEUOut == 0 && this.mEUTimer++ > 20 || this.mHeat >= this.mMaxHeat) {
+                        this.stopNuclearReactor();
+                    }
+                    if (this.mEUOut != 0) {
+                        this.mEUTimer = 0;
+                    }
+                    this.mExplosionStrength *= this.mHEM * tMultiplier;
+                    this.mEU += this.mEUOut * 20;
+                    int tEU = this.mEULast1;
+                    this.mEULast1 = this.mEULast2;
+                    this.mEULast2 = this.mEULast3;
+                    this.mEULast3 = this.mEULast4;
+                    this.mEULast4 = this.mEUOut;
+                    this.mEUOut = (this.mEUOut + this.mEULast1 + this.mEULast2 + this.mEULast3 + tEU) / 5;
+                }
+            }
+            if (this.mTickTimer % 20L == 0L) {
+                this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 10, this.mMode);
+                this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, GT_Mod.instance.mBlocks[1].blockID, 11, this.mMaxHeat);
+            }
+        }
     }
 
     @Override
     public void receiveClientEvent(int aEventID, int aValue) {
-    	super.receiveClientEvent(aEventID, aValue);
-    	if (worldObj.isRemote) {
-	    	switch(aEventID) {
-	    	case 10:
-	    		mNeedsUpdate = true;
-	    		mMode = aValue;
-	    		break;
-	    	case 11:
-	    		mMaxHeat = aValue;
-	    		break;
-	    	}
-    	}
+        super.receiveClientEvent(aEventID, aValue);
+        if (this.worldObj.isRemote) {
+            switch (aEventID) {
+                case 10: {
+                    this.mNeedsUpdate = true;
+                    this.mMode = aValue;
+                    break;
+                }
+                case 11: {
+                    this.mMaxHeat = aValue;
+                }
+            }
+        }
     }
-    
-	@Override public int getStartInventorySide(ForgeDirection aSide) {
-		if (aSide == ForgeDirection.UP) return 54;
-		if (aSide == ForgeDirection.DOWN) return 54;
-		return 56;
-	}
 
-	@Override public int getSizeInventorySide(ForgeDirection aSide) {
-		return 2;
-	}
-	
-    @Override public String getInvName() {return GT_LanguageManager.mNameList1[4];}
-    
+    @Override
+    public int getStartInventorySide(ForgeDirection aSide) {
+        if (aSide == ForgeDirection.UP) {
+            return 54;
+        }
+        if (aSide == ForgeDirection.DOWN) {
+            return 54;
+        }
+        return 56;
+    }
+
+    @Override
+    public int getSizeInventorySide(ForgeDirection aSide) {
+        return 2;
+    }
+
+    @Override
+    public String getInvName() {
+        return GT_LanguageManager.mNameList1[4];
+    }
+
     @Override
     public int getTexture(int aSide, int aMeta) {
-    	switch (mMode) {
-    	case  0: return  8;
-    	case  1: return 46;
-    	case  2: return 45;
-    	default: return 48 + GT_Mod.Randomizer.nextInt(16);
-    	}
+        switch (this.mMode) {
+            case 0: {
+                return 8;
+            }
+            case 1: {
+                return 46;
+            }
+            case 2: {
+                return 45;
+            }
+        }
+        return 48 + GT_Mod.Randomizer.nextInt(16);
     }
 
-	public ChunkCoordinates getPosition() {
-		return new ChunkCoordinates(xCoord, yCoord, zCoord);
-	}
+    public ChunkCoordinates getPosition() {
+        return new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
+    }
 
-	public World getWorld() {
-		return worldObj;
-	}
+    public World getWorld() {
+        return this.worldObj;
+    }
 
-	public int getHeat() {
-		return mHeat;
-	}
+    public int getHeat() {
+        return this.mHeat;
+    }
 
-	public void setHeat(int aHeat) {
-		mHeat = aHeat;
-	}
+    public void setHeat(int aHeat) {
+        this.mHeat = aHeat;
+    }
 
-	public int addHeat(int aAmount) {
-		mHeat += aAmount;
-		return mHeat;
-	}
+    public int addHeat(int aAmount) {
+        this.mHeat += aAmount;
+        return this.mHeat;
+    }
 
-	public int getMaxHeat() {
-		return mMaxHeat;
-	}
+    public int getMaxHeat() {
+        return this.mMaxHeat;
+    }
 
-	public void setMaxHeat(int aMaxHeat) {
-		mMaxHeat = aMaxHeat;
-	}
+    public void setMaxHeat(int aMaxHeat) {
+        this.mMaxHeat = aMaxHeat;
+    }
 
-	public float getHeatEffectModifier() {
-		return mHEM;
-	}
+    public float getHeatEffectModifier() {
+        return this.mHEM;
+    }
 
-	public void setHeatEffectModifier(float aHEM) {
-		mHEM = aHEM;
-	}
+    public void setHeatEffectModifier(float aHEM) {
+        this.mHEM = aHEM;
+    }
 
-	public int getOutput() {
-		return mEUOut;
-	}
+    @Override
+    public int getOutput() {
+        return this.mEUOut;
+    }
 
-	public int addOutput(int aEnergy) {
-		mEUOut += aEnergy;
-		return mEUOut;
-	}
-	
-	public int getPulsePower() {
-		return 1;
-	}
+    public int addOutput(int aEnergy) {
+        this.mEUOut += aEnergy;
+        return this.mEUOut;
+    }
 
-	public ItemStack getItemAt(int x, int y) {
-		if (x<0||x>8||y<0||y>5) return null;
-		return getStackInSlot(x + y * 9);
-	}
+    public int getPulsePower() {
+        return 1;
+    }
 
-	public void setItemAt(int x, int y, ItemStack aStack) {
-		setInventorySlotContents(x + y * 9, aStack);
-	}
+    public ItemStack getItemAt(int x, int y) {
+        if (x < 0 || x > 8 || y < 0 || y > 5) {
+            return null;
+        }
+        return this.getStackInSlot(x + y * 9);
+    }
 
-	public void explode() {
-		stopNuclearReactor();
-	}
+    public void setItemAt(int x, int y, ItemStack aStack) {
+        this.setInventorySlotContents(x + y * 9, aStack);
+    }
 
-	public int getTickRate() {
-		return 1;
-	}
+    public void explode() {
+        this.stopNuclearReactor();
+    }
 
-	public boolean produceEnergy() {
-		return true;
-	}
+    public int getTickRate() {
+        return 1;
+    }
+
+    public boolean produceEnergy() {
+        return true;
+    }
 }
+
