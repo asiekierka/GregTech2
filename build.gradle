@@ -1,0 +1,64 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		maven { url "https://maven.fabricmc.net" }
+		maven { url "https://repo.sleeping.town" }
+	}
+	dependencies {
+		classpath "agency.highlysuspect:voldeloom:2.4" 
+	}
+}
+
+apply plugin: "agency.highlysuspect.voldeloom"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(11) //Last version able to set a --release as low as 6
+compileJava.options.release.set(6) //Forge doesn't understand classes compiled to versions of the class-file format newer than Java 6's
+
+String minecraftVersion = "1.4.6"
+String forgeVersion = "1.4.6-6.5.0.489"
+
+archivesBaseName = "GregTech"
+version = "2.76d"
+
+repositories {
+	ivy {
+		name 'asie dependency mirror'
+		artifactPattern "https://asie.pl/javadeps/[module]-[revision](-[classifier]).[ext]"
+		metadataSources {
+			artifact()
+		}
+	}
+
+	exclusiveContent {
+		forRepository {
+			maven {
+				url "https://api.modrinth.com/maven"
+				name "Modrinth"
+			}
+		}
+		filter {
+			includeGroup("maven.modrinth")
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${minecraftVersion}"
+	forge "net.minecraftforge:forge:${forgeVersion}:universal@zip"
+	mappings "net.minecraftforge:forge:${forgeVersion}:src@zip"
+
+//	modImplementation name: "buildcraft", version: "A-1.4.7-3.4.5", ext: "jar"
+//	modCompileOnly name: "forestry", version: "A-2.0.0.11", ext: "jar"
+	modImplementation name: "industrialcraft-2", version: "1.115.231-lf", ext: "jar"
+
+	modCompileOnly name: "CodeChickenCore", version: "0.8.1.6", ext: "jar"
+	modCompileOnly name: "NotEnoughItems", version: "1.4.7.4", ext: "jar"
+	modCompileOnly name: "IC2NuclearControl", version: "1.4.5", ext: "zip"
+	modCompileOnly name: "OmniTools", version: "2.2.3", ext: "zip"
+	modCompileOnly name: "Railcraft_1.4.7", version: "6.17.0.0", ext: "jar"
+	modCompileOnly name: "ThermalExpansion", version: "2.2.2.2", ext: "zip"
+}
+
+volde {
+	//more configuration goes here...
+}
