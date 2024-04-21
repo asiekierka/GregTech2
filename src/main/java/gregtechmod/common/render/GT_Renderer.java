@@ -50,24 +50,22 @@ extends RenderPlayer {
         boolean tLoaded = false;
         try {
             if (GT_Mod.instance.mShowCapes) {
-                if (GT_Mod.sAdminNames.contains(par1EntityPlayer.username)) {
-                    tLoaded = this.loadDownloadableImageTexture("", "/gregtechmodcapes/AdminCape.png");
-                }
-                if (GT_Mod.sPremiumNames.contains(par1EntityPlayer.username)) {
-                    tLoaded = this.loadDownloadableImageTexture("", "/gregtechmodcapes/PremiumCape.png");
-                }
                 if (GT_Mod.mBrainTechCapeList.contains(par1EntityPlayer.username)) {
-                    tLoaded = this.loadDownloadableImageTexture("https://dl.dropbox.com/u/88825306/BrainTechCape.png", "/gregtechmod/textures/BrainTechCape.png");
+                    this.loadTexture("/gregtechmod/textures/BrainTechCape.png");
+                    tLoaded = true;
                 }
                 if (GT_Mod.mGregTechCapeList.contains(par1EntityPlayer.username)) {
-                    tLoaded = this.loadDownloadableImageTexture("https://dl.dropbox.com/u/88825306/GregTechCape.png", "/gregtechmod/textures/GregTechCape.png");
+                    this.loadTexture("/gregtechmod/textures/GregTechCape.png");
+                    tLoaded = true;
                 }
             }
             if (par1EntityPlayer.username.equals("Mr_Brain")) {
-                tLoaded = this.loadDownloadableImageTexture("https://dl.dropbox.com/u/88825306/MrBrainCape.png", "/gregtechmod/textures/MrBrainCape.png");
+                this.loadTexture("/gregtechmod/textures/MrBrainCape.png");
+                tLoaded = true;
             }
             if (par1EntityPlayer.username.equals("GregoriusT")) {
-                tLoaded = this.loadDownloadableImageTexture("https://dl.dropbox.com/u/88825306/GregoriusCape.png", "/gregtechmod/textures/GregoriusCape.png");
+                this.loadTexture("/gregtechmod/textures/GregoriusCape.png");
+                tLoaded = true;
             }
         }
         catch (Throwable e) {

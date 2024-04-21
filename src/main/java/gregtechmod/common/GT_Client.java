@@ -22,6 +22,8 @@ import gregtechmod.common.GT_Proxy;
 import gregtechmod.common.GT_TickHandler;
 import gregtechmod.common.render.GT_MetaItem_Renderer;
 import gregtechmod.common.render.GT_Renderer;
+
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Scanner;
 import net.minecraft.item.ItemStack;
@@ -43,11 +45,13 @@ extends GT_Proxy {
                     @Override
                     public void run() {
                         try {
-                            Scanner tScanner = new Scanner(new URL("https://dl.dropbox.com/u/88825306/CapeList.txt").openStream());
-                            while (tScanner.hasNextLine()) {
-                                String tName = tScanner.nextLine();
-                                if (GT_Mod.mGregTechCapeList.contains(tName)) continue;
-                                GT_Mod.mGregTechCapeList.add(tName);
+                            InputStream stream = GT_Client.class.getResourceAsStream("gregtechmod/supporterlist.txt");
+                            if (stream != null) {
+                                Scanner tScanner = new Scanner(stream);
+                                while (tScanner.hasNextLine()) {
+                                    String tName = tScanner.nextLine();
+                                    GT_Mod.mGregTechCapeList.add(tName);
+                                }
                             }
                         }
                         catch (Throwable throwable) {

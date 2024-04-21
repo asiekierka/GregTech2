@@ -201,10 +201,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
@@ -354,10 +352,8 @@ public class GT_Mod {
     public final int[] mItemIDs = new int[256];
     public final int[] mBlockIDs = new int[]{4058, 4059, 4060, 4061, 4057};
     public static World mUniverse;
-    public static final ArrayList sPremiumNames;
-    public static final ArrayList sAdminNames;
-    public static final ArrayList mBrainTechCapeList;
-    public static final ArrayList mGregTechCapeList;
+    public static final Set<String> mBrainTechCapeList;
+    public static final Set<String> mGregTechCapeList;
     public static final ArrayList mRubyList;
     public static final ArrayList mSapphireList;
     public static final ArrayList mBauxiteList;
@@ -3117,10 +3113,8 @@ public class GT_Mod {
         tabGregTech = new GT_CreativeTab();
         sOreDict = new GT_OreDictHandler();
         mUniverse = null;
-        sPremiumNames = new ArrayList();
-        sAdminNames = new ArrayList();
-        mBrainTechCapeList = new ArrayList();
-        mGregTechCapeList = new ArrayList();
+        mBrainTechCapeList = new HashSet<String>();
+        mGregTechCapeList = new HashSet<String>();
         mRubyList = new ArrayList();
         mSapphireList = new ArrayList();
         mBauxiteList = new ArrayList();
