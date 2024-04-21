@@ -1,0 +1,372 @@
+2.90i
+Patched Electrolyzer UI from mistaqur.
+
+﻿2.90h
+Nerfed the Matter Fabricator to a maximum of 8192EU/t instead of 1000000, unless the regular Massfab is enabled.
+Fixed the Energy Bar in the Fusion Reactor.
+Made the Centrifuge a MetaTileEntity.
+
+2.90g
+Added the functional Fusion Reactor. Please report any Bugs in the next 24 Hours as I plan to update to 1.5.X on Thursday.
+All old Reactors will convert into a Fusion Computer and are no longer craftable.
+
+2.90f
+Added a few Upgrades.
+Added a not working Fusion Reactor and Plasma Generators.
+Added portable Scanner.
+
+2.90d
+Added new Upgrade System. Just rightclick your Machines with the Upgrade you wanna insert.
+Messed around with a crapton of Recipes.
+Added Ingots for Thorium and Plutonium.
+
+2.90c
+Added tons of moreless funny/useful Tooltips for my Machines/Items
+Added Michael Jackson Support for Energy Consuming Machines. No, Buffers won't output any MJ and the MJ is never getting converted to EU! Rate is the standard 2.5EU:1MJ
+Added a few Railcraft related Recipes.
+
+2.90b
+Changed a few Recipes. Windmills and Watermills are now made in the Assembler.
+UUM-Recipes now use the Advanced Config. Some Recipes have been slightly changed, and the Snowlayers got removed due to the upcoming 1.5-Update making them craftable.
+Changed Plutonium and Thorium Cells, now using the multipulse System (and nerfed Thorium by 50% Lifetime).
+
+2.90a
+Added Flour (macerated Wheat, which can be cooked into Bread), got that Idea from AE, however my Recipe is more balanced in comparsion to Carrots and Potatoes (you get one Bread per Wheat).
+Added some Recipes, and made Sensor Kits now Craftable inside the Assembler (it's cheaper too!).
+Broke old Advanced Configs completly by letting OreDictUnification run over the ItemNames (its now much better readable), better delete your whole RecipesAdvConfig-File.
+Added a few Tooltips to make people aware of some useful Features.
+Deleted the IQuantumChest-Interface from the API as IDigitalChest replaces it
+Added a far better Multiblock-Machine-API.
+
+2.82c
+Fixed a crapton of Bugs.
+Added the possibility to dye Stuff inside the printer. Railcrafts Metal Posts, Rockwool, Wool and basically everything what can be dyed by surrounding a Dye with 8 Identical
+Blocks or by shapelessly crafting one thing together with Dye. A sideeffect of that is that you can craft Canvas Bags (8 Canvas around Dye) with it too.
+Added the possibility to use the Printer to create Paper from Canes and Pulp.
+Changed Mixed Metal Ingot Recipes.
+
+2.82b
+Copying of Maps inside the printer is now possible (I know you can still craft copies, but hey! A printer is so much cooler)
+Creating Maps inside a printer with compass and 8 Paper is now also possible.
+Compasses and Clocks are now craftable inside an Assembler.
+Added several Circuit Parts to the Scrapboxdrops.
+Added some missing Insulation-Recipes to the Assembler.
+Added alternate Generator Recipes.
+
+2.82a
+Fixed that Recipe Bug mentioned above.
+Added the Printer! A Device which can basically copy writable/written Books by inserting a Book, an Ink Sack and the Book you wanna Copy. It can also craft Books from 3 Paper and a Leather.
+Added a Button to the GUIs of Basic Machines, which is enabling you to switch between Sided-Input and non-Sided-Input.
+Fixed "Item-Output-Mode" of Basic Machines not being Saved, and so resetting to enabled all the time.
+
+2.81f
+Added Plate Bending Machine also known as Bender. It can convert Ingots to Plates. I changed tons of Crafting Recipes, including Mixed Metal Ingots, Dense Copper Plates and almost every Machine. I won't add any Config to revert that massive change!
+Added Circuit Assembling Machine. It is a Device, which produces regular Circuits cheaper, and is also a requirement for most of the higher Tier Circuits. As with Bender, I wont add a Config for that change, so don't even ask for it!
+Fixed NEI-Recipe-Transfer-Rect in some of the Auto-Machines. I will have to ask mistaqur for the Names of the Recipe handlers for Macerator, Extractor, Compressor, Furnace and so on.
+
+2.81e
+Fixed my wrong usage of splitStack(1), as I didnt look at its sideeffects (decreasing the size of the original Stack).
+
+2.81d
+Added Wildcard-Damagevalue Mode for the regular Sorter. Just rightclick the Item. It can sometimes cause Render glitches! If thats the Case the GUI will become partially invisible, but you can STILL click all the Slots. When that happens take the Log and give it to the one whose Item caused that glitch, AND NOT ME!!! I cant fix other peoples broken Code. Especially not Eloraams Code, which causes an even more strange Errorlog.
+Added the "Grindable-Only" Mode of the Type-Sorter (The Ore with the Gear on it), as not all Ores are really grindable *ahem* XyChorium *ahem*
+Fixed OreDict-Unification-API not associating certain Ore Strings before postload happens. That Bug was happening due to my switch from stupid Listscanner to ultrafast Double-Hashmap (of which, one Map didnt have the Name of the Ore).
+
+2.81c
+Added 3 more decorative Storages (note, that their mainpurpose is DECORATION and NOT Storage). You can craft them in a shapeless Recipe of the Metal encased Shelf.
+Changed the Texture of the Advanced Safe, to look more safely. (what a pun)
+Fixed Holoslots, which dont have a Click handling, to cause crashes (i.e. clicking in Electrolyzer on the Water Icon).
+Fixed Recycling options for Cobble (seems IC² doesnt check for wildcard Values) and added several other things like Glass Buttons, Pipes (also Sandstone Pipes) or similar to the List.
+
+2.81b
+Fixed the Sorters connecting and disconnecting to the E-net every single tick.
+Added Shelfes to store Books, Paper and Food Cans! Guess who gave me the Idea to do that. (remembers a minor Texture Bug when leftclicking it too often...)
+
+2.81a
+Added Item Type Sorter. Capable of sorting up to 12 (Leave Blocks are bugged) item Types, just by OreDict-Names.
+
+2.80h
+Fixed Wildcard Damagevalue in Recipes not being accepted when Debug Mode is not enabled. Yes, I used that -1 Damagevalue for the Food Recipes.
+
+2.80g
+Fixed some minor Bugs.
+
+2.80f
+Added Alloy Smelter. You can use it to quickly get Bronze/Brass/Invar without having to macerate the Ingots.
+Added Automatic Canning Machine. It can can Food and it fills Cells. However it cannot fill Fuel Cans nor CFoam-Packs. Due to the Cell filling ability I removed all Recipes, which craft a Cell of X out of empty Cell + Ingredient Y. That means you must have that Machine to craft Uranium Cells, Plutonium Cells, Thorium Cells, Sulfur Cells, Calcium Carbonate Cells, Bio Cells, Hydrated Coal Cells, Water Cells, Lava Cells, Mercury Cells and so on.
+Both Machines have an API to add Recipes unlike their other Mods counterparts (I know TE has an API for its Induction Smelter, but this Device is more meant to be an Alloy Furnace instead of an Ore Processor).
+
+2.80e
+Added the Wiremill. A Device, which increases the Cable Output per Ingot by 33-50%. It needs an undamaged Drawplate of Redpower to be crafted, as I dont wanna ruin the RP-Tech-Tree requirement of Diamond Block + Handsaw. *Hint: There is a secret Recipe*
+
+2.80d
+Improved loading time by applying wasRead() to the Advanced Config.
+Added 5 old new Machines: Automatic Macerator, Automatic Extractor, Automatic Compressor, Automatic Recycler and Automatic E-Furnace. They are all crafted by adding a Conveyor Module to the original Machine.
+
+2.80c
+Fixed a minor Bug regarding Owner assignment (of non-protected Machines)
+
+2.80b
+Added Digital Chest Interface for better access to its Inventory Data. (That is for Modders!)
+Also made them Wrenchable by non-Owners if their Data is empty.
+
+2.80a
+Grabbed the old fix for that Problem
+Fixed Bronze Hoes not being reversible in Macerator/Furnace
+Removed old Quantum Chest GUI Code and forgot to remove its GUI-png-File...
+Made Digital Chests and Quantum Chests only wrenchable by their respective Owner. This should prevent accidental mishaps of random people running around with Scissors Wrenches in their Hand (guess what happened recently...).
+
+2.79f
+Lets see if that is finally fixed. It only updates if a player is close (8 Meters).
+
+2.79e
+Added Shift-Left-Click to Digital and Quantum Chests.
+fixed the QChest Recipe.
+
+2.79d
+Added Digital Chests
+Changed the way MetaTileEntities update the Client. Please report any Non-Updated (within 10 secs) MetaTileEntity in chunkloaded or crowded Areas.
+Changed Quantum Chests (Meta 3) to Quantum Chests (Meta 49). For converting old Itemstored ones, just place the old ones in the World and they will update.
+
+2.79c
+Found the Bug with the Flower scanning. I used the most stupid Constructor of "World" to not cause any Sideeffect, and ofcourse grabbed a Clientside Only Constructor...
+
+2.79b
+Added GUI to the Pump. Yes, it is planned to fill Cells like a regular Tank.
+Decreased update Rate of my MetaTileEntities again.
+Decreased Packet Size for graphical MetaTileEntitiy Updates with the magic of Bitmasks (Active, Redstone and Facing are now in one single Packet)
+Improved the MetaTileEntity Renderingcode to not rely on calls to the BaseMetaTileEntity, by adding Active and Redstone as Parameters, which you will quickly notice with NEI (or your Chest full of GT-Machines).
+
+2.79a
+Added Advanced Pump, works like an IC²-Miner, but more pumpy (and no Drills to break Blocks!). As it has no GUI now (NOW), you have to input the Mining Pipes into the Top.
+Added Conveyor module as a Crafting Component for several Automation Devices.
+Changed Thorium multicell Recipes to use Copper INGOTS instead of dense Plates.
+Made GUIs Serverside only. If you experience crashes due to that, then update Forge! I tested it right before the release! That probably fixed also the Block-Clicking causing pseudoblock placement Bug.
+Made Translocators, Buffers, Filters, Scrapboxinators and similar MUCH faster, if they really have work to do, meaning that they now check every 10 seconds for Items to transfer, and then rush for AT LEAST 1.5 Seconds by scanning once every Tick, if they transfered an Item.
+
+2.78k
+Forgot to add to the changelog, that I made it possble for some (Inventory Manager) of my Machines to emit multiple Packets per Tick. And it shouldve been displayed in the Tooltip (which is broken ofcourse...)
+Fixed!
+
+2.78j
+Added a few new Logs to my own Logfile.
+Added compatibility with every grassdropped Seed to get SeedOil from it.
+Added SeedOil-Industrial-Centrifuge Recipes if Forestry is NOT loaded, as SeedOil can be used inside the Semifluid Generator.
+Added compatibility with every Bonemealable Flower to get more Dye inside an Extractor.
+Improved performance of the two electric Buffers massively. I did totally not do that because of the RG-Tweet mentioning RP-Relays being laggy (due to the Item bouncing back and forth between the Relay and the targeted Inventory every tick), because I totally dont read RGs tweets, exactly like he totally doesnt read this Thread.
+
+2.78i
+Fixed a minor Bug with the Autocrafting Table not rejecting Items in the Container Inventory when in one of the special Modes (so any mode which is not the regular Crafting Mode)
+Streamlined the Redstone recipe of the Centrifuge a bit.
+
+2.78h
+Fixed the wrongly placed Slots inside the Inventory Manager (tons of Code were just copypasted)
+Fixed Electric Regulator, as it behaved as crappy as the Redpower Regulator... (and yes I just said that the Redpower Regulator doesnt properly regulate, no matter which combination of Settings and Items I put into, nor if its In-Line or directly attached). It worked fine in 1.2.5.
+
+2.78g
+Added the Inventory Manager. Its new so it can have Bugs. I clicked everything in the GUI to test for crashes, and also tested if the Energyflow Options and the Inventory Movement work. You should avoid having empty Slots in the Sorting Area (if you even filter the Stuff), so Slot Blocker Items would be useful.
+
+2.78f
+Made it possible for the Autocrafting table to accept input from the Container-Item-Output-Slots.
+Added Nugget Crafting Mode
+Made other Mods small Dusts and nuggets compatible to the Autocrafting Tables corresponding Modes. (before it was checking for a certain Item)
+Removed the 8 Sulfur + (Char)Coal = 5 Gunpowder Recipe, from whichever UE-Mod adds that. Do not complain, it's terribly simple to aquire enough Saltpeter for the regular Recipe!
+
+2.78e
+Fixed minor Bugs
+Added a few Recipes
+Fixed unintended Recipe overload in the TE-Sawmill, which lead to pulverizing Wooden Tools into pulp, instead of Planks.
+
+2.78d
+Fixed Liquiducts not connecting to freshly placed MetaTileEntities
+Fixed Apatite Ore in Grinder
+Added Clay to the results of Redrock Centrifuging
+Changed most Machine releated advanced Configs to use Production-Duration instead of true/false, X <= 0 is disabled.
+Made Quantum Tank unbreakable, so one cant accidently break it without a Wrench (or TNT).
+Fixed Creosote Cell being redundant. You can simply craft old Cells into the correct RC ones.
+
+2.78d
+Untested Fix for the GUI-Problem. Needs Serverside update, otherwise you get the same Problem.
+Fixed a few Recipes.
+Improved Debug-Scanner a little bit (now shows Explosion Resistance and Hardness
+
+2.78c
+Added a Filter Slot to the Safe, so automation cant input other Items than the Filter itself. You need to rightclick the Filter to actually change it (because otherwise it gets NEI-Shiftstacking Problems). This renders Single-Item-Filters useless (as this Safes Filter acts like a Barrel-Filter).
+As effective from now (V2.78c) on, you can use any GregTech Version with the same major Version Number (so 2.78X) to join a Server. However it's recommended to not use older Versions than the Server has, especially if I added new Blocks.
+Nerfed induction smelting of Pyrite Ore, and also retextured Pyrite Ore, to look a bit more like Nether Gold Ore.
+
+2.78b
+Just a quick hotfix for the 2 Problems, and I added another Donator to the internal Capelist.
+
+2.78a
+Added the Advanced Safe. The only things which should be able to break that, are the Wrench (if used by owner) and TNT. Admins CANNOT open those Safes, like the IC²-Safes. If they want to get the Stuff out of other peoples Safes, then they must use TNT to break them. You can use Automation to input Items.
+Fixed a few minor Bugs
+Added the GUI-Texture of the planned "Inventory Manager"
+
+2.77h
+h - a new World Record for minor GT-Releases, HAYO! Edit: Version 4.04 has far more minor releases, and 6.00 even more! :P
+Added config to disable the craft of Enchantment Tables (Books from Dungeons, Villagers and Anvils are then the only way to enchant Stuff).
+Added a few reverse Recipes for a lot of things. (even redstone Torches, with the TE-Sawmill)
+Added chemical Recipe for Sulfric Acid
+Fixed Liquid Transposer not recognizing some of my Cells, as I register other Mods Liquid Containers in postload (and since I load after TE, the Liquid Transposer has no way to see my registration). I add the Recipes manually now, to make sure everything works.
+My Recipe Adders now use the Overwrite-Parameter of Thermal Expansions API, what means that you now have to update TE for my Recipes.
+My Adv-Config has been improved in general, and is now pretty much Exception proof.
+Changed the Quantum Chest Texture, to look more like the old Personal Safe (before the awesome Safe Model)
+Scrapboxinator now just lets non-Scrapboxes go through
+Added the MOST AWESOME SCRAPBOX DROP EVAR
+It is Scrap, with a >60% Chance! (I needed to seriously nerf that mechanic a bit)
+Fixed quite a few Bugs.
+
+2.77g
+Fixed Blaze-Reactors in two Ways:
+1. Blazes no longer give you Coal Dust (Dark Ashes instead)
+2. Coal Dust no longer centrifugable into Thorium
+Added the Coal-Ore Byproduct Thorium Dust (So you need to silktouch Coal Ore now)
+Disabled Thermal-Expansion-Recipe Overload per default. You need to turn it back on under the Features Tab, if you have an older Version of TE and want OreDict-Unification for its Machines. This Config will get removed in MC 1.5 as it's only for older TE Versions.
+Added Configsection for Machines (all those Dangerous explosion Stuff) into the Main Config. I also moved the constant Energy requirement into that Section.
+Made Autocraftingtable a bit more intelligent when converting OreDict-Stuff and piling Dusts.
+You can now empty my Liquid based Generators with Containers (like Cells or Buckets). If you just wanna place your Diesel Generators somewhere else and don't have the Time to let them run out of Energy.
+
+2.77f
+Added OreDict-Unification-API-Function.
+Uranium Ore has now Plutonium Dust as byproduct instead of Tungsten.
+Minor Tweaks were added too.
+
+2.77e
+Added Config to disable the requirement of the Blast Furnace for Steel, Aluminium, Chrome, Titanium and Tungsten.
+Overloaded every regular Smelting Recipe, which was able to create these 5 Ingots if the before mentioned Configs are set to the default. Those Smelting Recipes will create Dusts instead of Ingots (it could happen, that you get a Dust->Dust-Smelting-Recipe due to that, as it's not easyly possible to remove normal Smelting Recipes, due to obfuscation).
+Fixed some accidently overloaded Recipes of Thermal Expansion.
+
+2.77d
+Due to my geniality, I finally found a Way to unificate the Output of Thermal Expansions Machines (and to adjust some of the Outputs to match the Macerator equivalents), by just using the API of it. The weak point for that Hack was Minecraft itself, and the possibility of setting all 3 values (ID, Amount, Metadata) of an ItemStack even after its creation, making the "final"-Statement completly futile (well not that compeltly, I cant add or remove secondary Outputs using that Method).
+Machines now explode when on Fire. This happens randomly, so that the Fire has time to spread to other Machines.
+Some Bugfixes and Recipe additions were ofcourse also happening.
+
+2.77c
+Fixed many minor Bugs.
+Fixed some Recipes.
+Made Machines able to catch Fire, but they won't burn away (they will just burn forever like Netherrack). But as I said, I will let burning Machines randomly explode in the next Version.
+
+2.77b
+Fixed some Frame releated Stuff.
+Changed a few Recipes a little bit.
+Fixed some other minor Bugs.
+
+2.77a
+Fixed several moreless critical Bugs.
+Fixed the Progress-lost-on-Chunkload-and-then-complaining-about-insufficient-Energy-even-if-it-has-more-than-enough-Energy-Bug of my Multiblock Machines.
+Added Distillation Tower and two currently Byproduct-Free Recipes for Oil and Biomass Cells (Liquid Pipes currently not supported)
+Changed my Silver Ore to Silverlead Ore. @TexturepackMakers: The 6 diffrent Ore Textures for all the GT-Ores are now a bit better randomized.
+Added Recipes for the Vacuum Freezer regarding the diffrent Coolant Cells
+Added cheap Recipes to the Industrial Blast Furnace to create Bronze, Brass and Invar directly from Ingots, similar to Thermocrafts Induction Smelter.
+Fixed Thermocraft API usage (as my Bugfix for the older 2.1.6-Version was identical to the Dust-Duplicator-Code)
+Changed Recipe for Steel. You now need a refined Iron Ingot and 2 Coal. If you use Steel Dust, then nothing changes.
+
+2.76d
+Nerfed the output of centrifuging lava a tiny bit, also you only need 16 instead of 64 Lava for one Process.
+Probably fixed any Sync-Nullpointers in my MetaTileEntities (especially Frame Movement).
+Made Energy Explosions of my Machines even more dangerous, by letting Machines emit EU upon explosion IN ALL 6 DIRECTIONS! First it emits a packet of 32 EU, then 128, 512, 2048 and 8192 EU, which will fry pretty much every Cable and detonate any Machine connected to said Cable. This makes LV carrying Glassfibre (in comparsion to Copper Cables) even more dangerous, as the Cable gets fried at 2048 and not 128 EU (what would prevent any other Explosion Reaction).
+Improved the QuantumChest Code a large bit (as suggested by mistaqur via PM one week ago).
+Edit: Forgot to mention that I added Thorium and Plutonium Dusts (and support for every Mod, which adds correspondent Ores), which will maybe cause problems with previously set up Automation (as I switched from Cells to Dusts in some Recipes). Monazite Ore + Grinder should give you Thorium Dust, but I didn't test it.
+
+2.76c
+Added the Functionality of extracting Vis from the Thaumic Nodes to the Magic Energy Absorber. WARNING! Any explosions resulting from handling this Generator wrong, while in Vis-Extraction Mode, will result in holy craptons of Flux polluting the Nodes. Moving thaumic Instabilities can cause such explosions.
+
+2.76b
+Added the Magic Energy Absorber, a Device capable of extracting Magic Energy from enhanted Tools and close by Ender Crystals (if the switch is ON ofcourse). It works with every Enchantment (even Mod added ones). I just remember that I forgot to fix one Exploit regarding this Device...
+Fixed Dragon Egg Siphon.
+
+2.76a
+Added Magic Energy Converter. This Device is capable of converting the Magic Energy from Items and magic Fluids into pure electric Energy. Ender Eyes (NOT the Pearls!), Nether Stars (and Beacons) and some Thaumcraft Items can be converted! Due to needing a very strong Magic Conductor, this Device is quite hard to get, as the only known thing for creating that is a Nether Star. It needs Platinum Ingots instead of Thaumium Ingots if Thaumcraft isn't installed. You usually get any Containers or empty Crystals back.
+Changed GUI of the Advanced Regulator a bit.
+Tons of minor Tweaks and Bugfixes.
+
+2.75d
+Fixed your "Energy-Issue", by setting the Machine to negative Progress Time (-10 Ticks) if the Progress Time is negative, then it doesnt cost Energy to get back to 0, but after the 0, it will again start to produce.
+Generalized Storage Block Crafting. The old Configs for Storage Blocks are now all Ineffective, please use the advanced Config to restrict some of the Blocks. The Default didnt change so dont worry if you did nothing to that Config.
+
+2.75c
+Improved Item Movement Code of my Automation Machines, to be able to limit Stacksizes at the Target Inventory (The Advanced Regulator makes already use of that, so you may want to check the preplaced ones), may needs a bit more testing, please report any Item-Dupe or Item-Elimination, which happens to you.
+I don't know what exactly went wrong, but the Implosion Compressor should play a Sound. Maybe it works only in Multiplayer.
+
+2.75b
+Added Chemical Reactor to combine the contents of 2 Cells. It uses the previously unused Texture from the Electrolyzer
+Added Explosions if you are stupid enough to break electrically charged Machines, not using a Wrench. WARNING: Explosions cause massive Chainreactions, which can wreck your WHOLE Workshop!
+
+2.75a
+Fixed a few Bugs
+Added Dragon Egg Siphon. Now that Dragon Egg duping is no longer possible using Pistons, I can safely add this. Don't even try to use preduped Eggs or otherwise aquired multiple Eggs ontop of this Device, I have special Code to prevent running multiple Dragon Egg Siphons. EU Output is 128EU/t (can be adjusted in Config).
+
+2.74d
+New Material to build your Super-Safe Bunkers: Tungstensteel! But not just Tungstensteel, VACUUM HARDENED TUNGSTENSTEEL!!! Regular Vacuum hardened Steel, is one of the best Materials one can imagine. Many popular Space Stations have been made of it, like the infamous Death Egg, which fell 3 times back onto the Planet WITHOUT EVEN DENTING the vacuum hardened Outer Hull!!! Now combine that with the hardness of Tungsten, and you get a Material, which can resist explosions like Iridium! But not only that! Its awesome dark Blue look, and the possibility to combine it with Iridium to make it EVEN STRONGER, are perfect for building Bases of it!
+
+2.74c
+Fixed some Oredict Stuff in regards to Nether Ores.
+
+2.74b
+Added Nuggets.
+Added a few Storage Blocks.
+Improved Autocrafting Table a bit.
+Fixed my texture Files, which were having 100kb more Filesize, than necessary.
+
+2.74a
+Added Vacuum Freezer. Its only Recipe is currently making Ice Cells (Forestry's crushed Ice), which can be centrifuged for 200EU to get an Ice Block and the Cell.
+Added Advanced Regulator. You can determine which Items go into which Slot of the target. It has a Buffer of 9 Items and can target up to 9 Slots, very useful for Reactors.
+Added Configuration Options for Hardcore Players, to decrease the maximum StackSize of Ores, Wood/Saplings and Planks. Its set to 64 per Default, so nobody should have a Problem. I personally use 16 in all 3 Configs, what is making Forestrys Backpacks very useful.
+
+2.73d
+Fixed some OreDict-Stuff
+Added expensive Nanosaber Recipe
+
+2.73c
+Adjusted all the Scrapbox Drops and added a few new ones.
+Fixed again some Bugs, I know I say that always, but its still true.
+
+2.73b
+Fixed some Bugs and Glitches.
+
+2.73a
+Added a cool new Feature.
+Improved OreDict-Unification EVEN MORE!
+Overridden any nonscrapbox Recipe producing IC²-Dusts, with my own ToolTipped Dusts (or the ones you set the Unification for).
+
+2.72c
+Fixed some Bugs.
+Added some Liquid Effects to the Liquids.
+
+2.72b
+Fixed some Stuff.
+Improved OreDictUnification, with some IC²-Machine-Recipes
+Fixed your Sandstone Exploit.
+
+2.72a
+Added Cells for five of the most important Liquids of other Mods (Bio Diesel, Diesel, Oil, Creosote and Biomass)
+Added Semifluid Generator for anything what is something between a Liquid and a Solid. (Sodium, Creosote, Oil and Biomass for example)
+Added Invar Ingot (Idea from Thermal Expansion). Its Heat Resistance will be used in some of the Generators.
+Added Config to determine the Direction of OreDict-Unification.
+Fixed some Bugs ofcourse.
+
+2.71b
+Fixed negative Tank Capacity of the Electrolyzer (happened by making it PSI-Compatible, and accidently changing the wrong Value)
+Fixed Autocrafting-Dupe-Glitch, which happened due to my attempt to fix Container Items.
+
+2.71a
+Fixed some of my Bugs.
+Fixed the Recipes of IC2, which were conflicting with Redpower.
+if Redpower is installed, then all my Gems and Ingots in my Recipes will be overridden by the Redpower Gems and Ingots. You can convert old Items, via OreDictionary-Unification. That's no Modification of Redpower in any Way. I just made IC2 and GregTech nicer to Redpower.
+Added Thermal Generator.
+
+2.70d
+Fixed the 2 Bugs mentioned above.
+Workaround for Handsaw not being usable in Autocrafting Table at all, by adding an almost Identical Sawmill Recipe only for cutting Silicon Boules, to enable simple Automation, until I find out what is wrong with my Autocrafting Table (except for the Container Item Stuff).
+
+2.70c
+Fixed a critical Bug, with my ITNT/Nuke-Fix.
+
+2.70b
+Mainly Bugfixes.
+A Config option for making Blockbreakers more expensive, which is OFF per default.
+Added Wolframium Grinder as an equivalent to the Diamond Grinder.
+
+2.70a
+Updated for Minecraft 1.4.6.
